@@ -17,8 +17,16 @@ if not os.path.exists(DOWNLOAD_DIR):
 def index():
     return render_template('index.html')
 
+@app.route('/index.html')
+def index_html():
+    return render_template('index.html')
+
 @app.route('/app')
 def app_page():
+    return render_template('app.html')
+
+@app.route('/app.html')
+def app_html():
     return render_template('app.html')
 
 @app.route('/api/download', methods=['POST'])
