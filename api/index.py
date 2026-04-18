@@ -7,8 +7,16 @@ import yt_dlp
 
 
 
+
+
+
+
 app = Flask(__name__)
 CORS(app) # Enable CORS for all routes
+
+
+
+
 
 
 
@@ -25,16 +33,22 @@ if not os.path.exists(DOWNLOAD_DIR):
 
 
 
+
+
+
+
+
+
+
+
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def catch_all(path):
-    import os
-    res = {
-        'cwd': os.getcwd(),
-        'files_here': os.listdir('.'),
-        'files_parent': os.listdir('..') if os.path.exists('..') else 'no parent',
-    }
-    return jsonify(res)
+    # Route for serving static files from the root
+    if path.startswith('api/'):
+        return "Not Found", 404
+    target = path if path else 'index.html'
+    return send_from_directory('.', target)
 
 @app.route('/api/download', methods=['POST'])
 def download():
@@ -53,6 +67,10 @@ def download():
 
 
 
+
+
+
+
     # Configure yt-dlp options
     ydl_opts = {
         'outtmpl': f'{DOWNLOAD_DIR}/%(title)s.%(ext)s',
@@ -62,18 +80,9 @@ def download():
 
 
 
+
+
+
+
     if format_type in audio_formats:
         ydl_opts['format'] = 'bestaudio/best'
-        ydl_opts['postprocessors'] = [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': format_type,
-            'preferredquality': quality if quality in ['128', '256', '320'] else '192',
-        }]
-    else:
-        # Video quality handling
-        if quality == 'best':
-            ydl_opts['format'] = f'bestvideo[ext={format_type}]+bestaudio[ext=m4a]/best[ext={format_type}]/best'
-        else:
-            ydl_opts['format'] = f'bestvideo[height<={quality}][ext={format_type}]+bestaudio[ext=m4a]/best[height<={quality}][ext={format_type}]/best'
-
-
