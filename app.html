@@ -1,10 +1,12 @@
-<html lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SYNX App | Universal Downloader</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;family=Outfit:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #030408;
@@ -312,7 +314,7 @@
                             <option value="best">Highest Available</option>
                             <option value="2160">4K Ultra HD (2160p)</option>
                             <option value="1440">2K Quad HD (1440p)</option>
-                            <option value="1080" selected="">Full HD (1080p)</option>
+                            <option value="1080" selected>Full HD (1080p)</option>
                             <option value="720">HD (720p)</option>
                             <option value="480">Standard (480p)</option>
                         </optgroup>
@@ -333,7 +335,7 @@
                 <p>SYNX does not host any media on its servers. This tool is provided for educational and personal use only. By using this service, you agree to respect international copyright laws.</p>
             </div>
 
-            <button class="btn-download" id="downloadBtn" onclick="startDownload()" style="margin-top: 20px; opacity: 0.5; cursor: not-allowed;" disabled="">
+            <button class="btn-download" id="downloadBtn" onclick="startDownload()" style="margin-top: 20px; opacity: 0.5; cursor: not-allowed;" disabled>
                 <div class="spinner" id="btnSpinner"></div>
                 <span id="btnText">Download Now</span>
             </button>
@@ -389,6 +391,8 @@
                 return;
             }
 
+            const format = document.getElementById('formatSelect').value;
+            const quality = document.getElementById('qualitySelect').value;
             const btnText = document.getElementById('btnText');
             const btnSpinner = document.getElementById('btnSpinner');
             const downloadBtn = document.getElementById('downloadBtn');
@@ -400,52 +404,48 @@
             const videoTitle = document.getElementById('videoTitle');
             const videoSize = document.getElementById('videoSize');
 
-            // Reset and show status
+            // --- DEPLOYMENT NOTE ---
+            // The API is now at /api/download on the same domain (Vercel)
+            const API_URL = '/api/download'; 
+
             downloadBtn.disabled = true;
             btnText.textContent = 'Processing...';
             btnSpinner.style.display = 'block';
             statusContainer.style.display = 'block';
-            progressBar.style.width = '0%';
-            progressPct.textContent = '0%';
-            statusText.textContent = 'Connecting to media server...';
-            detailsRow.style.display = 'none';
+            progressBar.style.width = '10%';
+            progressPct.textContent = '10%';
+            statusText.textContent = 'Connecting to media engine...';
 
-            // Simulate the backend process
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += Math.random() * 15;
-                if (progress >= 100) {
-                    progress = 100;
-                    clearInterval(interval);
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url, format, quality })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    progressBar.style.width = '100%';
+                    progressPct.textContent = '100%';
+                    statusText.textContent = 'Ready for pickup!';
+                    btnText.textContent = 'Download Ready';
                     
-                    statusText.textContent = 'Download Ready!';
-                    btnText.textContent = 'Download Complete';
-                    btnSpinner.style.display = 'none';
-                    downloadBtn.style.background = 'var(--green, #059669)';
-                    
-                    // Final alert or trigger actual download link if we had a real backend
-                    setTimeout(() => {
-                        alert('Your file is ready. In a real environment, this would trigger a direct download link.');
-                        downloadBtn.disabled = false;
-                        btnText.textContent = 'Download Again';
-                        downloadBtn.style.background = '';
-                    }, 500);
-                }
-
-                if (progress > 10 && detailsRow.style.display === 'none') {
                     detailsRow.style.display = 'flex';
-                    videoTitle.textContent = "Media Detected: " + (url.includes('youtube') ? 'YouTube Content' : 'Social Media Video');
-                    videoSize.textContent = "Size: " + (Math.floor(Math.random() * 50) + 10) + " MB";
-                    statusText.textContent = 'Extracting media streams...';
+                    videoTitle.textContent = data.title;
+                    videoSize.textContent = "Format: " + format.toUpperCase();
+                    
+                    // Trigger actual download
+                    window.location.href = data.download_url;
+                } else {
+                    throw new Error(data.message || 'Download failed');
                 }
-
-                if (progress > 40 && statusText.textContent === 'Extracting media streams...') {
-                    statusText.textContent = 'Optimizing for ' + document.getElementById('formatSelect').value.toUpperCase() + '...';
-                }
-
-                progressBar.style.width = progress + '%';
-                progressPct.textContent = Math.floor(progress) + '%';
-            }, 600);
+            })
+            .catch(err => {
+                statusText.textContent = 'Error: ' + err.message;
+                btnText.textContent = 'Try Again';
+                downloadBtn.disabled = false;
+                btnSpinner.style.display = 'none';
+            });
         }
     </script>
-</body></html>
+</body>
+</html>
