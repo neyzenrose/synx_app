@@ -65,20 +65,26 @@ def download():
         'no_warnings': True,
         'nocheckcertificate': True,
         'geo_bypass': True,
-        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
         'add_header': [
             'Accept-Language: en-US,en;q=0.9',
             'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-            'Sec-Fetch-Mode: navigate',
-            'Sec-Fetch-Dest: document',
-            'Sec-Fetch-Site: none',
+            'Sec-Ch-Ua: "Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+            'Sec-Ch-Ua-Mobile: ?0',
+            'Sec-Ch-Ua-Platform: "Windows"',
         ],
         'extractor_args': {
             'youtube': {
-                'player_client': ['android', 'ios'],
-                'skip': ['webpage', 'hls'],
+                'player_client': ['tv', 'mweb', 'android', 'ios'],
+                'player_skip': ['webpage', 'hls'],
             }
         },
+        'http_headers': {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            'Accept': '*/*',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Origin': 'https://www.youtube.com',
+        }
     }
 
     if ffmpeg_bin:
