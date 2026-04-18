@@ -5,8 +5,12 @@ from flask_cors import CORS
 import yt_dlp
 
 
+
+
 app = Flask(__name__)
 CORS(app) # Enable CORS for all routes
+
+
 
 
 # Directory where downloads will be stored
@@ -17,15 +21,20 @@ if not os.path.exists(DOWNLOAD_DIR):
 
 
 
+
+
+
+
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def catch_all(path):
-    # Serve index.html for root
-    target = path if path else 'index.html'
-    try:
-        return send_from_directory('../', target)
-    except:
-        return "Not Found", 404
+    import os
+    res = {
+        'cwd': os.getcwd(),
+        'files_here': os.listdir('.'),
+        'files_parent': os.listdir('..') if os.path.exists('..') else 'no parent',
+    }
+    return jsonify(res)
 
 @app.route('/api/download', methods=['POST'])
 def download():
@@ -42,11 +51,15 @@ def download():
     audio_formats = ['mp3', 'm4a', 'wav', 'flac', 'ogg', 'aac']
 
 
+
+
     # Configure yt-dlp options
     ydl_opts = {
         'outtmpl': f'{DOWNLOAD_DIR}/%(title)s.%(ext)s',
         'quiet': True,
     }
+
+
 
 
     if format_type in audio_formats:
@@ -64,21 +77,3 @@ def download():
             ydl_opts['format'] = f'bestvideo[height<={quality}][ext={format_type}]+bestaudio[ext=m4a]/best[height<={quality}][ext={format_type}]/best'
 
 
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-            filename = ydl.prepare_filename(info)
-            if format_type == 'mp3':
-                filename = filename.rsplit('.', 1)[0] + '.mp3'
-            
-            return jsonify({
-                "status": "success",
-                "title": info.get('title'),
-                "filename": os.path.basename(filename),
-                "download_url": f"/files/{os.path.basename(filename)}"
-            })
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-
-@app.route('/files/<path:filename>')
