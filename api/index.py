@@ -4,14 +4,28 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import yt_dlp
 
+
 app = Flask(__name__)
 CORS(app) # Enable CORS for all routes
+
 
 # Directory where downloads will be stored
 # Note: In serverless (Vercel), only /tmp is writable
 DOWNLOAD_DIR = '/tmp/downloads'
 if not os.path.exists(DOWNLOAD_DIR):
     os.makedirs(DOWNLOAD_DIR)
+
+
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def catch_all(path):
+    # Serve index.html for root
+    target = path if path else 'index.html'
+    try:
+        return send_from_directory('../', target)
+    except:
+        return "Not Found", 404
 
 @app.route('/api/download', methods=['POST'])
 def download():
@@ -27,11 +41,13 @@ def download():
     video_formats = ['mp4', 'webm', 'mkv', 'mov', 'avi']
     audio_formats = ['mp3', 'm4a', 'wav', 'flac', 'ogg', 'aac']
 
+
     # Configure yt-dlp options
     ydl_opts = {
         'outtmpl': f'{DOWNLOAD_DIR}/%(title)s.%(ext)s',
         'quiet': True,
     }
+
 
     if format_type in audio_formats:
         ydl_opts['format'] = 'bestaudio/best'
@@ -46,6 +62,7 @@ def download():
             ydl_opts['format'] = f'bestvideo[ext={format_type}]+bestaudio[ext=m4a]/best[ext={format_type}]/best'
         else:
             ydl_opts['format'] = f'bestvideo[height<={quality}][ext={format_type}]+bestaudio[ext=m4a]/best[height<={quality}][ext={format_type}]/best'
+
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -63,10 +80,5 @@ def download():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-@app.route('/files/<path:filename>')
-def serve_file(filename):
-    return send_from_directory(DOWNLOAD_DIR, filename)
 
-if __name__ == '__main__':
-    # Run server locally for testing
-    app.run(port=5000, debug=True)
+@app.route('/files/<path:filename>')
