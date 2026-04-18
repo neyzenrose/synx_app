@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYNX App | Universal Downloader</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #030408;
+            --surface-color: #0d0f17;
+            --primary-accent: #6d28d9;
+            --secondary-accent: #06b6d4;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --gradient-accent: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* --- Background Elements --- */
+        .bg-glow {
+            position: fixed;
+            top: -10%;
+            right: -10%;
+            width: 40%;
+            height: 40%;
+            background: radial-gradient(circle, rgba(109, 40, 217, 0.1) 0%, transparent 70%);
+            z-index: -1;
+            filter: blur(80px);
+        }
+
+        nav {
+            padding: 24px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .downloader-card {
+            background: var(--surface-color);
+            border: 1px solid var(--glass-border);
+            width: 100%;
+            max-width: 680px;
+            border-radius: 28px;
+            padding: 48px;
+            box-shadow: 0 20px 60px -10px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .downloader-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        }
+
+        h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 32px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            font-size: 15px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--glass-border);
+            padding: 20px 24px;
+            border-radius: 16px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-accent);
+            background: rgba(255,255,255,0.05);
+            box-shadow: 0 0 0 4px rgba(109, 40, 217, 0.1);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        select {
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--glass-border);
+            padding: 14px 20px;
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            appearance: none;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .btn-download {
+            width: 100%;
+            background: var(--gradient-accent);
+            color: white;
+            padding: 18px;
+            border-radius: 16px;
+            border: none;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px -10px rgba(109, 40, 217, 0.5);
+        }
+
+        .btn-download:active {
+            transform: translateY(0);
+        }
+
+        .btn-download .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* --- Progress Section --- */
+        .status-container {
+            margin-top: 32px;
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar-bg {
+            height: 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--gradient-accent);
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+
+        .details-row {
+            margin-top: 24px;
+            display: flex;
+            gap: 20px;
+            background: rgba(255,255,255,0.02);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .thumbnail-mock {
+            width: 100px;
+            height: 60px;
+            background: var(--surface-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        /* --- Footer Info --- */
+        .supported-sites {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .site-icons {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 16px;
+            opacity: 0.6;
+        }
+
+        @media (max-width: 600px) {
+            .downloader-card { padding: 32px 20px; }
+            .options-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-glow"></div>
+
+    <nav>
+        <a href="index.html" class="logo">SYNX</a>
+        <div style="display: flex; gap: 20px;">
+            <span style="font-size: 13px; color: var(--text-secondary);">Beta v2.0</span>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="downloader-card">
+            <h2>Start your download</h2>
+            <p class="subtitle">Paste an URL from YouTube, Instagram, TikTok or 1000+ other sites.</p>
+
+            <div class="input-group">
+                <input type="text" id="urlInput" placeholder="https://www.youtube.com/watch?v=...">
+            </div>
+
+            <div class="options-grid">
+                <div class="select-wrapper">
+                    <select id="formatSelect">
+                        <optgroup label="Video Formats">
+                            <option value="mp4">Video (MP4)</option>
+                            <option value="webm">Video (WEBM)</option>
+                            <option value="mkv">Video (MKV)</option>
+                            <option value="mov">Video (MOV)</option>
+                            <option value="avi">Video (AVI)</option>
+                        </optgroup>
+                        <optgroup label="Audio Formats">
+                            <option value="mp3">Audio (MP3)</option>
+                            <option value="m4a">Audio (M4A)</option>
+                            <option value="wav">Audio (WAV)</option>
+                            <option value="flac">Audio (FLAC)</option>
+                            <option value="ogg">Audio (OGG)</option>
+                            <option value="aac">Audio (AAC)</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="select-wrapper">
+                    <select id="qualitySelect">
+                        <optgroup label="Video Quality">
+                            <option value="best">Highest Available</option>
+                            <option value="2160">4K Ultra HD (2160p)</option>
+                            <option value="1440">2K Quad HD (1440p)</option>
+                            <option value="1080" selected>Full HD (1080p)</option>
+                            <option value="720">HD (720p)</option>
+                            <option value="480">Standard (480p)</option>
+                        </optgroup>
+                        <optgroup label="Audio Quality">
+                            <option value="320">Insane (320 kbps)</option>
+                            <option value="256">Extreme (256 kbps)</option>
+                            <option value="128">Standard (128 kbps)</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+
+            <div class="legal-notice" style="margin-top: 24px; font-size: 11px; color: var(--text-3, #475569); line-height: 1.4; text-align: center;">
+                <label style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer; text-align: left; margin-bottom: 12px; color: var(--text-secondary);">
+                    <input type="checkbox" id="legalAgree" style="margin-top: 3px;">
+                    <span>I agree that I am solely responsible for the content I download. I will only download media that is for personal use or for which I have explicit permission from the copyright owner.</span>
+                </label>
+                <p>SYNX does not host any media on its servers. This tool is provided for educational and personal use only. By using this service, you agree to respect international copyright laws.</p>
+            </div>
+
+            <button class="btn-download" id="downloadBtn" onclick="startDownload()" style="margin-top: 20px; opacity: 0.5; cursor: not-allowed;" disabled>
+                <div class="spinner" id="btnSpinner"></div>
+                <span id="btnText">Download Now</span>
+            </button>
+
+            <!-- Status Section -->
+            <div class="status-container" id="statusContainer">
+                <div class="progress-info">
+                    <span id="statusText">Processing link...</span>
+                    <span id="progressPct">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressBar"></div>
+                </div>
+
+                <div class="details-row" id="detailsRow" style="display: none;">
+                    <div class="thumbnail-mock" id="thumbPreview">No preview</div>
+                    <div>
+                        <div id="videoTitle" style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">Fetching title...</div>
+                        <div id="videoSize" style="font-size: 12px; color: var(--text-secondary);">Size: calculating...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="supported-sites">
+        <p>Supported Platforms</p>
+        <div class="site-icons">
+            <span>YouTube</span> • <span>Instagram</span> • <span>TikTok</span> • <span>Facebook</span> • <span>Twitter</span> • <span>Spotify</span>
+        </div>
+    </div>
+
+    <script>
+        const legalCheck = document.getElementById('legalAgree');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        legalCheck.addEventListener('change', function() {
+            if (this.checked) {
+                downloadBtn.disabled = false;
+                downloadBtn.style.opacity = "1";
+                downloadBtn.style.cursor = "pointer";
+            } else {
+                downloadBtn.disabled = true;
+                downloadBtn.style.opacity = "0.5";
+                downloadBtn.style.cursor = "not-allowed";
+            }
+        });
+
+        function startDownload() {
+            const url = document.getElementById('urlInput').value;
+            if (!url) {
+                alert('Please paste a valid URL first.');
+                return;
+            }
+
+            const format = document.getElementById('formatSelect').value;
+            const quality = document.getElementById('qualitySelect').value;
+            const btnText = document.getElementById('btnText');
+            const btnSpinner = document.getElementById('btnSpinner');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const statusContainer = document.getElementById('statusContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressPct = document.getElementById('progressPct');
+            const statusText = document.getElementById('statusText');
+            const detailsRow = document.getElementById('detailsRow');
+            const videoTitle = document.getElementById('videoTitle');
+            const videoSize = document.getElementById('videoSize');
+
+            // --- DEPLOYMENT NOTE ---
+            // Using relative URL to talk to the local Flask API
+            const API_URL = '/api/download'; 
+
+            downloadBtn.disabled = true;
+            btnText.textContent = 'Processing...';
+            btnSpinner.style.display = 'block';
+            statusContainer.style.display = 'block';
+            progressBar.style.width = '10%';
+            progressPct.textContent = '10%';
+            statusText.textContent = 'Connecting to media engine...';
+
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url, format, quality })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    progressBar.style.width = '100%';
+                    progressPct.textContent = '100%';
+                    statusText.textContent = 'Ready for pickup!';
+                    btnText.textContent = 'Download Ready';
+                    
+                    detailsRow.style.display = 'flex';
+                    videoTitle.textContent = data.title;
+                    videoSize.textContent = "Format: " + format.toUpperCase();
+                    
+                    // Trigger actual download
+                    window.location.href = data.download_url;
+                } else {
+                    throw new Error(data.message || 'Download failed');
+                }
+            })
+            .catch(err => {
+                statusText.textContent = 'Error: ' + err.message;
+                btnText.textContent = 'Try Again';
+                downloadBtn.disabled = false;
+                btnSpinner.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>
