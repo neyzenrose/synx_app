@@ -3,6 +3,10 @@ import json
 from flask import Flask, request, jsonify, send_from_directory, render_template
 from flask_cors import CORS
 import yt_dlp
+import static_ffmpeg
+
+# Fix for FFmpeg on Vercel
+static_ffmpeg.add_paths()
 
 app = Flask(__name__, template_folder='templates')
 CORS(app) # Enable CORS for all routes
@@ -56,6 +60,7 @@ def download():
             'Accept-Language: en-US,en;q=0.9',
             'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
         ],
+        'ffmpeg_location': 'ffmpeg',
     }
 
     if format_type in audio_formats:
