@@ -98,12 +98,19 @@ def download():
     # STRATEGY 2024: INSTANT BYPASS FOR YOUTUBE ON CLOUD
     if "youtube.com" in url or "youtu.be" in url:
         if vid_id:
-            # These APIs bypass YouTube's BotGuard by acting as proxies
             return jsonify({
                 'status': 'success',
                 'title': 'Video Ready (Synx Ultra Bypass)',
-                'download_url': f"https://api.vevioz.com/api/button/videos/{vid_id}",
-                'message': 'Connected to High-Speed Download Engine'
+                'download_url': f"https://vevioz.com/api/button/videos/{vid_id}",
+                'message': 'Fast Bypass Activated'
+            })
+        else:
+            # Fallback for complex URLs
+            return jsonify({
+                'status': 'success',
+                'title': 'Video Ready (Synx Ultra Bypass)',
+                'download_url': f"https://cobalt.tools",
+                'message': 'Please paste the link into the Bypass Engine'
             })
 
     # DEFAULT ENGINE: For Instagram, TikTok, etc.
