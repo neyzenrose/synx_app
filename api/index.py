@@ -33,16 +33,16 @@ def download():
     elif "v=" in url:
         vid_id = url.split("v=")[1].split("&")[0]
 
-    # STRATEGY: Instant Bypass for YouTube (Canada-Friendly)
+    # STRATEGY 2024: Canada-Friendly Redirect (Bypasses regional locks)
     if vid_id:
-         # Synx High-Speed Link Extraction (Loader.to avoids regional blocks)
+         return jsonify({
             'status': 'success',
             'title': 'Found in Canada! (Synx Node)',
             'download_url': f"https://loader.to/api/card/?url=https://www.youtube.com/watch?v={vid_id}",
             'message': 'Canada Engine Activated.'
         })
 
-    # Default logic for other sites
+    # Default logic for other non-youtube sites
     try:
         ydl_opts = {'proxy': PROXY_URL, 'quiet': True, 'nocheckcertificate': True}
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
