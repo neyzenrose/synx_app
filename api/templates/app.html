@@ -563,17 +563,49 @@
                     body: JSON.stringify({ url, format, quality })
                 });
 
-                const result = await response.json();
+                const data = await response.json();
 
-                if (result.status === 'success') {
+                if (data.status === 'success') {
                     progressFill.style.width = '100%';
-                    showStatus(`Success! Downloading "${result.title}"...`, 'success');
+                    showStatus(`Success! Downloading "${data.title}"...`, 'success');
                     btn.innerText = 'Download Again';
                     
                     // Trigger actual download
-                    window.location.href = result.download_url;
+                    window.location.href = data.download_url;
                 } else {
-                    throw new Error(result.message || 'Download failed');
+                    // CLIENT-SIDE BRIDGE FALLBACK
+                    console.log("Backend blocked. Attempting Client-Side Bridge...");
+                    showStatus("Bypassing server restrictions... Please wait.", 'info');
+                    
+                    try {
+                        const clientResp = await fetch('https://api.cobalt.tools/api/json', {
+                            method: 'POST',
+                            headers: { 
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                url: url,
+                                vQuality: quality === 'best' ? '1080' : quality,
+                                isAudioOnly: format === 'mp3'
+                            })
+                        });
+                        
+                        const clientData = await clientResp.json();
+                        
+                        if (clientData.status === 'stream' || clientData.status === 'redirect') {
+                            showStatus("Bypass Successful! Starting Download...", 'success');
+                            window.location.href = clientData.url;
+                        } else if (clientData.status === 'picker') {
+                            showStatus("Redirecting to download picker...", 'success');
+                            window.location.href = `https://cobalt.tools/?url=${encodeURIComponent(url)}`;
+                        } else {
+                            throw new Error(clientData.text || "Bypass failed");
+                        }
+                    } catch (clientErr) {
+                        showStatus("Error: " + (data.message || "Extraction failed. YouTube security is very high right now."), 'error');
+                        btn.innerText = 'Try Again';
+                    }
                 }
             } catch (err) {
                 showStatus('Error: ' + err.message, 'error');
