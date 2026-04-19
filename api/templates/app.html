@@ -20,136 +20,128 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-primary); overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; }
+        body { background-color: var(--bg-color); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column; }
         
-        nav { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(12px); border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 100; }
+        nav { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); backdrop-filter: blur(10px); }
         .logo { font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 800; background: var(--gradient-accent); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
-        .btn-back { background: var(--text-primary); color: var(--bg-color); padding: 8px 18px; border-radius: 40px; font-weight: 700; text-decoration: none; font-size: 13px; }
+        .btn-home { color: white; text-decoration: none; font-size: 14px; background: var(--glass-bg); padding: 8px 16px; border-radius: 20px; border: 1px solid var(--glass-border); }
 
-        .hero { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px; position: relative; }
-        .hero::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 20% 30%, rgba(109, 40, 217, 0.1), transparent 40%), radial-gradient(circle at 80% 70%, rgba(6, 182, 212, 0.05), transparent 40%); z-index: -1; }
+        .container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+        .card { background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(30px); padding: 50px 40px; border-radius: 30px; width: 100%; max-width: 650px; box-shadow: 0 40px 100px -20px rgba(0,0,0,0.6); }
 
-        .download-container { background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); padding: 50px 40px; border-radius: 30px; width: 100%; max-width: 600px; box-shadow: 0 40px 100px -20px rgba(0,0,0,0.5); }
-        
-        h1 { font-family: 'Outfit', sans-serif; font-size: 42px; font-weight: 800; text-align: center; margin-bottom: 30px; }
-        .url-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 18px 24px; border-radius: 12px; color: white; font-size: 16px; margin-bottom: 20px; outline: none; transition: border-color 0.3s; }
-        .url-input:focus { border-color: var(--primary-accent); }
-        
-        .btn-primary { background: var(--gradient-accent); color: white; padding: 16px 36px; border-radius: 12px; font-weight: 700; font-size: 18px; border: none; cursor: pointer; width: 100%; transition: transform 0.2s, box-shadow 0.3s; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px -5px rgba(109, 40, 217, 0.5); }
-        .btn-primary:active { transform: translateY(0); }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        h1 { font-family: 'Outfit', sans-serif; font-size: 38px; text-align: center; margin-bottom: 30px; letter-spacing: -1px; }
+        .input-box { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 18px 24px; border-radius: 12px; color: white; font-size: 16px; margin-bottom: 20px; outline: none; transition: border 0.3s; }
+        .input-box:focus { border-color: var(--primary-accent); }
 
-        .terms-wrap { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 25px; cursor: pointer; }
-        .terms-wrap input { width: 18px; height: 18px; border-radius: 4px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); cursor: pointer; margin-top: 2px; }
-        .terms-wrap label { font-size: 12px; color: var(--text-secondary); line-height: 1.4; user-select: none; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        select { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 12px; border-radius: 10px; color: white; cursor: pointer; }
 
-        .status-box { margin-top: 20px; padding: 12px; border-radius: 10px; font-size: 14px; text-align: center; display: none; }
-        .progress-wrap { margin-top: 25px; display: none; }
-        .progress-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; }
-        .progress-fill { height: 100%; width: 0%; background: var(--gradient-accent); transition: width 0.4s ease-out; }
+        .agree-group { display: flex; gap: 12px; align-items: flex-start; margin: 15px 0 25px; cursor: pointer; }
+        .agree-group input { width: 18px; height: 18px; margin-top: 2px; }
+        .agree-group label { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
 
-        .result-card { display: none; margin-top: 30px; padding: 25px; background: rgba(109, 40, 217, 0.05); border: 2px solid var(--primary-accent); border-radius: 20px; animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .btn-download { width: 100%; background: var(--gradient-accent); color: white; padding: 18px; border-radius: 12px; font-weight: 800; font-size: 18px; border: none; cursor: pointer; transition: transform 0.2s, box-shadow 0.3s; box-shadow: 0 10px 20px -5px rgba(109, 40, 217, 0.4); }
+        .btn-download:hover { transform: translateY(-2px); box-shadow: 0 15px 30px -5px rgba(109, 40, 217, 0.6); }
+        .btn-download:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .status { margin-top: 20px; text-align: center; font-size: 14px; font-weight: 600; display: none; }
+        .progress { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-top: 15px; overflow: hidden; display: none; }
+        .progress-fill { height: 100%; width: 0%; background: var(--gradient-accent); transition: width 0.4s; }
+
+        /* Result Card */
+        .result-box { display: none; margin-top: 30px; padding: 25px; background: rgba(109, 40, 217, 0.1); border: 2px solid var(--primary-accent); border-radius: 20px; animation: slideUp 0.5s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
     <nav>
         <a href="/" class="logo">SYNX</a>
-        <a href="/" class="btn-back">Back to Home</a>
+        <a href="/" class="btn-home">Back to Home</a>
     </nav>
 
-    <div class="hero">
-        <div class="download-container">
+    <div class="container">
+        <div class="card">
             <h1>Start download</h1>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 40px; font-size: 15px;">Paste your link below to begin secure extraction.</p>
             
-            <input type="text" id="videoUrl" placeholder="Paste YouTube link here..." class="url-input" autocomplete="off">
+            <input type="text" id="videoUrl" placeholder="https://www.youtube.com/watch?v=..." class="input-box">
             
-            <div class="terms-wrap" onclick="document.getElementById('agreeCheck').click()">
-                <input type="checkbox" id="agreeCheck" checked onclick="event.stopPropagation()">
-                <label>I agree to only download content for personal use and respect copyright laws. I am solely responsible for the content I acquire.</label>
+            <div class="options">
+                <select id="format"><option value="mp4">Video (MP4)</option><option value="mp3">Audio (MP3)</option></select>
+                <select id="quality"><option value="best">Highest Quality</option><option value="1080">1080p Full HD</option></select>
             </div>
 
-            <button onclick="startDownload()" id="downloadBtn" class="btn-primary">Download Now</button>
-
-            <div id="statusMessage" class="status-box"></div>
-            
-            <div id="progressWrap" class="progress-wrap">
-                <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
-                <p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-top: 10px;">Synx Engine Processing...</p>
+            <div class="agree-group">
+                <input type="checkbox" id="agree" checked>
+                <label for="agree">I am solely responsible for the content I download. I will use this tool for personal use only and respect copyright laws.</label>
             </div>
 
-            <div id="resultCard" class="result-card">
-                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px;">
+            <button onclick="startDownload()" id="dlBtn" class="btn-download">Download Now</button>
+
+            <div id="status" class="status"></div>
+            <div id="progress" class="progress"><div id="fill" class="progress-fill"></div></div>
+
+            <!-- RESULT AREA -->
+            <div id="result" class="result-box">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
                     <div style="font-size: 32px;">🎬</div>
                     <div>
-                        <h4 id="videoTitle" style="font-size: 18px; color: white;">Media Prepared</h4>
-                        <p style="font-size: 12px; color: var(--secondary-accent); font-weight: 600;">Verified by Synx Engine</p>
+                        <h4 id="title" style="font-size: 18px; color: white;">Media Ready</h4>
+                        <p style="font-size: 12px; color: var(--secondary-accent); font-weight: 700;">Verified by Synx Server</p>
                     </div>
                 </div>
-                <a id="downloadLink" href="#" target="_blank" class="btn-primary" style="display: block; text-align: center; text-decoration: none; font-size: 16px;">Download Now</a>
-                <p style="font-size: 11px; text-align: center; color: var(--text-secondary); margin-top: 15px; opacity: 0.6;">Your unique download link is ready.</p>
+                <a id="link" href="#" target="_blank" class="btn-download" style="display: block; text-align: center; text-decoration: none;">Save to Device</a>
             </div>
         </div>
     </div>
 
     <script>
         async function startDownload() {
-            const urlInput = document.getElementById('videoUrl');
-            const url = urlInput.value.trim();
-            const agree = document.getElementById('agreeCheck').checked;
-            const btn = document.getElementById('downloadBtn');
-            const progress = document.getElementById('progressWrap');
-            const progressFill = document.getElementById('progressFill');
-            const resultCard = document.getElementById('resultCard');
-            const videoTitle = document.getElementById('videoTitle');
-            const downloadLink = document.getElementById('downloadLink');
+            const url = document.getElementById('videoUrl').value;
+            const agree = document.getElementById('agree').checked;
+            const btn = document.getElementById('dlBtn');
+            const status = document.getElementById('status');
+            const progress = document.getElementById('progress');
+            const fill = document.getElementById('fill');
+            const result = document.getElementById('result');
 
-            if (!url) { showStatus('Please paste a link first', 'error'); return; }
-            if (!agree) { showStatus('Please agree to terms', 'error'); return; }
+            if (!url) { alert('Please paste a link'); return; }
+            if (!agree) { alert('You must agree to the terms'); return; }
 
-            // Reset UI
             btn.disabled = true;
-            btn.innerText = 'Analyzing...';
+            btn.innerText = 'Processing...';
+            status.style.display = 'block';
+            status.innerText = 'Connecting to Synx Node...';
+            status.style.color = '#fff';
             progress.style.display = 'block';
-            progressFill.style.width = '20%';
-            resultCard.style.display = 'none';
+            fill.style.width = '30%';
+            result.style.display = 'none';
 
             try {
-                const response = await fetch('/api/download', {
+                const resp = await fetch('/api/download', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ url })
                 });
-                
-                if (!response.ok) throw new Error('Synx Engine Busy');
-                
-                const data = await response.json();
+                const data = await resp.json();
 
                 if (data.status === 'success') {
-                    progressFill.style.width = '100%';
-                    videoTitle.innerText = data.title || "Your Media is Ready";
-                    downloadLink.href = data.download_url;
-                    resultCard.style.display = 'block';
-                    btn.innerText = 'Ready!';
-                    showStatus('Found! Access your download below.', 'success');
-                } else {
-                    throw new Error(data.message || 'Error finding media');
-                }
-            } catch (err) {
-                showStatus('Engine Error: ' + err.message, 'error');
+                    fill.style.width = '100%';
+                    status.innerText = 'Extraction Successful!';
+                    status.style.color = '#10b981';
+                    
+                    document.getElementById('title').innerText = data.title || "Your Media is Ready";
+                    document.getElementById('link').href = data.download_url;
+                    result.style.display = 'block';
+                    btn.innerText = 'Done!';
+                } else { throw new Error(data.message); }
+            } catch (e) {
+                status.innerText = 'Error: ' + e.message;
+                status.style.color = '#ef4444';
                 btn.innerText = 'Try Again';
             } finally {
                 btn.disabled = false;
             }
-        }
-
-        function showStatus(msg, type) {
-            const status = document.getElementById('statusMessage');
-            status.style.display = 'block';
-            status.innerText = msg;
-            status.style.background = type === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)';
-            status.style.color = type === 'error' ? '#ef4444' : '#10b981';
         }
     </script>
 </body>
