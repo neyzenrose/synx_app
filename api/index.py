@@ -76,12 +76,12 @@ def download():
     except Exception as e:
         # STAGE 2: CLUSTER BYPASS (Multiple fallback instances)
         if vid_id:
-            # 9XBuddy is extremely stable in North America/Europe
+            # Cobalt is the ONLY ad-free, secure, and open-source bypass. NordVPN loves it.
             return jsonify({
                 'status': 'success',
-                'title': 'Download Ready (Synx Ultra Bypass)',
-                'download_url': f"https://9xbuddy.com/process?url=https://www.youtube.com/watch?v={vid_id}",
-                'message': 'Redirecting to secure global node...'
+                'title': 'Download Ready (Synx Safe Bypass)',
+                'download_url': f"https://cobalt.tools",
+                'message': 'Redirecting to Cobalt. Use our premium ad-free engine below.'
             })
 
         # STAGE 3: COBALT FALLBACK
