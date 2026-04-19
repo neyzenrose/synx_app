@@ -409,6 +409,26 @@
                 </div>
                 <p id="progressText">Processing...</p>
             </div>
+
+            <!-- PREMUM RESULT CARD -->
+            <div id="resultCard" style="display: none; margin-top: 30px; padding: 25px; background: rgba(109, 40, 217, 0.1); border: 2px solid var(--primary-accent); border-radius: 20px; animation: slideIn 0.5s ease-out;">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                    <div style="width: 50px; height: 50px; background: var(--gradient-accent); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">🎬</div>
+                    <div style="flex: 1;">
+                        <h4 id="videoTitle" style="font-size: 18px; color: white; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">Media Ready</h4>
+                        <p style="font-size: 13px; color: var(--secondary-accent); font-weight: 600;">Verified by Synx Engine</p>
+                    </div>
+                </div>
+                <a id="downloadLink" href="#" target="_blank" class="btn-primary" style="width: 100%; display: block; text-align: center; font-size: 16px; text-decoration: none; box-shadow: 0 10px 30px rgba(109, 40, 217, 0.3);">Download Now</a>
+                <p style="text-align: center; font-size: 11px; color: var(--text-secondary); margin-top: 15px; opacity: 0.7;">Secure download link. Valid for a limited time.</p>
+            </div>
+            
+            <style>
+                @keyframes slideIn {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+            </style>
         </div>
     </section>
 
