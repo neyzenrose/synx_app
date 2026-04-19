@@ -103,27 +103,57 @@ def download():
             })
     except Exception as e:
         error_str = str(e)
-        # STEP 2: EMERGENCY FALLBACK (Using external engine if blocked)
-        if "Sign in" in error_str or "unsupported" in error_str or "403" in error_str:
-            try:
-                external_api = "https://api.cobalt.tools/api/json"
-                headers = { "Accept": "application/json", "Content-Type": "application/json" }
-                payload = { "url": url, "vQuality": quality, "isAudioOnly": (format_type == "mp3") }
-                
-                resp = requests.post(external_api, json=payload, headers=headers, timeout=10)
-                ext_result = resp.json()
-                
-                if ext_result.get("status") in ["stream", "redirect"]:
+        print(f"Local Engine Error: {error_str}")
+        
+        # STEP 2: EMERGENCY FALLBACK - STAGE A (Cobalt API)
+        try:
+            print("Trying Bypass Stage A (Cobalt)...")
+            external_api = "https://api.cobalt.tools/api/json"
+            headers = { "Accept": "application/json", "Content-Type": "application/json", "User-Agent": "Mozilla/5.0" }
+            payload = { "url": url, "vQuality": "1080" if quality == "best" else quality, "isAudioOnly": (format_type == "mp3") }
+            
+            resp = requests.post(external_api, json=payload, headers=headers, timeout=12)
+            ext_result = resp.json()
+            
+            if ext_result.get("status") in ["stream", "redirect"]:
+                return jsonify({
+                    'status': 'success',
+                    'title': ext_result.get("text", "Video (Synced)"),
+                    'download_url': ext_result.get("url"),
+                    'message': 'Bypassed successfully'
+                })
+        except Exception as stage_a_err:
+            print(f"Stage A Failed: {stage_a_err}")
+            
+        # STEP 3: EMERGENCY FALLBACK - STAGE B (Invidious API / Direct Download)
+        try:
+            print("Trying Bypass Stage B (Invidious)...")
+            # Extract video ID
+            import re
+            video_id_match = re.search(r'(?:v=|\/)([0-9A-Za-z_-]{11}).*', url)
+            if video_id_match:
+                video_id = video_id_match.group(1)
+                # We use a known working public instance
+                inv_url = f"https://invidious.snopyta.org/api/v1/videos/{video_id}"
+                inv_resp = requests.get(inv_url, timeout=10).json()
+                formats = inv_resp.get("formatStreams", [])
+                if formats:
+                    best_stream = formats[0].get("url") # Usually the first one is best
                     return jsonify({
                         'status': 'success',
-                        'title': ext_result.get("text", "Video"),
-                        'download_url': ext_result.get("url"),
-                        'message': 'Bypassed via Synx Engine'
+                        'title': inv_resp.get("title", "Video (Bypass)"),
+                        'download_url': best_stream,
+                        'message': 'Bypassed via Invidious'
                     })
-            except Exception as inner_e:
-                print(f"Fallback failed: {inner_e}")
+        except Exception as stage_b_err:
+            print(f"Stage B Failed: {stage_b_err}")
         
-        return jsonify({'status': 'error', 'message': error_str}), 500
+        # FINAL ATTEMPT: Return a more helpful error
+        return jsonify({
+            'status': 'error', 
+            'message': "All engines are currently blocked by YouTube security. We are working on a fix. Please try again in a few minutes.",
+            'debug': error_str
+        }), 500
 
 @app.route('/files/<path:filename>')
 def serve_file(filename):
