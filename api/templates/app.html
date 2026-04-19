@@ -361,96 +361,161 @@
     </nav>
 
     <section class="hero">
-        <span class="badge-new">Version 2.0 Now Released</span>
-        <h1>Capture Any Media.<br>Anywhere, Instantly.</h1>
-        <p>The universe's most powerful downloader. Support for 1000+ platforms including YouTube, Instagram, TikTok, and Spotify.</p>
-        <div class="cta-group">
-            <a href="app.html" class="btn-primary">Get Started Free</a>
-            <a href="#platforms" class="btn-secondary">Download App</a>
-        </div>
-    </section>
+        <div class="download-container">
+            <h1>Start your download</h1>
+            <p>Paste an URL from YouTube, Instagram, TikTok or 1000+ other sites.</p>
 
-    <section class="platforms" id="features">
-        <span class="section-tag">Powerful Features</span>
-        <h2 class="section-title">Why choose SYNX?</h2>
-        
-        <div class="platform-grid">
-            <div class="platform-card">
-                <div style="font-size: 40px; margin-bottom: 20px;">⚡</div>
-                <h3>Ultra Fast</h3>
-                <p>Multi-threaded downloading technology ensures 10x faster speeds.</p>
-            </div>
-            <div class="platform-card">
-                <div style="font-size: 40px; margin-bottom: 20px;">🛡️</div>
-                <h3>Private & Secure</h3>
-                <p>We don't track your downloads. Your data is encrypted and safe.</p>
-            </div>
-            <div class="platform-card">
-                <div style="font-size: 40px; margin-bottom: 20px;">💎</div>
-                <h3>High Fidelity</h3>
-                <p>Download up to 4K Video and 320kbps Audio quality.</p>
-            </div>
-        </div>
-    </section>
-
-    <section class="platforms" id="platforms">
-        <span class="section-tag">Cross-Platform</span>
-        <h2 class="section-title">Available Everywhere</h2>
-        
-        <div class="platform-grid">
-            <!-- Web -->
-            <div class="platform-card">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                <h3>Web Browser</h3>
-                <p>Use SYNX directly in your browser without any installation.</p>
-                <a href="app.html" class="btn-download">Launch Web App</a>
+            <div class="input-group">
+                <input type="text" id="videoUrl" placeholder="https://www.youtube.com/watch?v=..." class="url-input">
             </div>
 
-            <!-- APK -->
-            <div class="platform-card">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
-                <h3>Android APK</h3>
-                <p>Pure, ad-free experience for your Android device.</p>
-                <a href="#" class="btn-download">Download APK</a>
+            <div class="options-grid">
+                <div class="option-item">
+                    <select id="formatType" class="select-input">
+                        <option value="mp4">Video (MP4)</option>
+                        <option value="mp3">Audio (MP3)</option>
+                        <option value="mkv">Video (MKV)</option>
+                        <option value="wav">Audio (WAV)</option>
+                    </select>
+                </div>
+                <div class="option-item">
+                    <select id="qualityType" class="select-input">
+                        <option value="best">Highest Quality</option>
+                        <option value="1080">Full HD (1080p)</option>
+                        <option value="720">HD (720p)</option>
+                        <option value="480">Standard (480p)</option>
+                        <option value="320">320kbps (Audio)</option>
+                        <option value="128">128kbps (Audio)</option>
+                    </select>
+                </div>
             </div>
 
-            <!-- iOS -->
-            <div class="platform-card">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19a6.33 6.33 0 0 0 4.5-2c1.5 0 3-1 3-3V7s-1.5-1-3-1c-1.5 0-3 1-3 1s-1.5-1-3-1c-1.5 0-3 1-3 1v7c0 2 1.5 3 3 3a6.33 6.33 0 0 0 4.5 2Z"></path><path d="M9 21h6"></path></svg>
-                <h3>iOS / IPA</h3>
-                <p>Optimized for iPhone and iPad via TestFlight or IPA.</p>
-                <a href="#" class="btn-download">Get for iOS</a>
+            <div class="terms-group">
+                <input type="checkbox" id="termsAgree" checked>
+                <label for="termsAgree">I agree that I am solely responsible for the content I download. I will only download media that is for personal use or for which I have explicit permission from the copyright owner.</label>
             </div>
 
-            <!-- Linux -->
-            <div class="platform-card">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path><path d="M6 2v20"></path><path d="M10 7h6"></path><path d="M10 11h6"></path><path d="M10 15h6"></path></svg>
-                <h3>Linux (.deb)</h3>
-                <p>Native performance for Debian, Ubuntu and more.</p>
-                <a href="#" class="btn-download">Download .deb</a>
-            </div>
+            <button onclick="startDownload()" id="downloadBtn" class="btn-primary" style="width: 100%; border: none; cursor: pointer; margin-top: 20px;">Download Now</button>
 
-            <!-- Other -->
-            <div class="platform-card">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-                <h3>Desktop & Other</h3>
-                <p>Windows, MacOS and more versions available.</p>
-                <a href="#all" class="btn-download">View All Versions</a>
+            <div id="statusMessage" class="status-box" style="display: none;"></div>
+            
+            <div id="progressContainer" class="progress-container" style="display: none;">
+                <div class="progress-bar">
+                    <div id="progressBarFill" class="progress-bar-fill"></div>
+                </div>
+                <p id="progressText">Processing...</p>
             </div>
         </div>
     </section>
 
-    <footer>
-        <span class="footer-logo logo">SYNX</span>
-        <div class="footer-links">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
-            <a href="#">API Documentation</a>
-            <a href="#">Status</a>
-            <a href="#">Twitter</a>
-        </div>
-        <p class="copyright">© 2026 SYNX Universal. All rights reserved.</p>
-    </footer>
+    <style>
+        .download-container {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            padding: 50px 40px;
+            border-radius: 30px;
+            max-width: 700px;
+            margin: 0 auto;
+            text-align: left;
+            box-shadow: 0 40px 100px -20px rgba(0,0,0,0.5);
+        }
+
+        .download-container h1 {
+            font-size: 32px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .download-container p {
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .url-input {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            padding: 18px 24px;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            margin-bottom: 20px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .url-input:focus {
+            background: rgba(255,255,255,0.08);
+            border-color: var(--primary-accent);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .select-input {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            padding: 14px 20px;
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .terms-group {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            margin-top: 10px;
+        }
+
+        .terms-group label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .status-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .progress-container {
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--gradient-accent);
+            transition: width 0.3s;
+        }
+
+        #progressText {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+    </style>
 
     <script>
         // Smooth scrolling for anchor links
@@ -465,6 +530,74 @@
                 }
             });
         });
+
+        async function startDownload() {
+            const url = document.getElementById('videoUrl').value;
+            const format = document.getElementById('formatType').value;
+            const quality = document.getElementById('qualityType').value;
+            const btn = document.getElementById('downloadBtn');
+            const status = document.getElementById('statusMessage');
+            const progress = document.getElementById('progressContainer');
+            const progressFill = document.getElementById('progressBarFill');
+
+            if (!url) {
+                showStatus('Please paste a valid URL', 'error');
+                return;
+            }
+
+            // UI Feedback
+            btn.disabled = true;
+            btn.innerText = 'Initializing...';
+            showStatus('Connecting to server...', 'info');
+            progress.style.display = 'block';
+            progressFill.style.width = '10%';
+
+            try {
+                const response = await fetch('/api/download', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, format, quality })
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    progressFill.style.width = '100%';
+                    showStatus(`Success! Downloading "${result.title}"...`, 'success');
+                    btn.innerText = 'Download Again';
+                    
+                    // Trigger actual download
+                    window.location.href = result.download_url;
+                } else {
+                    throw new Error(result.message || 'Download failed');
+                }
+            } catch (err) {
+                showStatus('Error: ' + err.message, 'error');
+                btn.innerText = 'Try Again';
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function showStatus(msg, type) {
+            const status = document.getElementById('statusMessage');
+            status.style.display = 'block';
+            status.innerText = msg;
+            
+            if (type === 'error') {
+                status.style.background = 'rgba(239, 68, 68, 0.1)';
+                status.style.color = '#f87171';
+                status.style.border = '1px solid rgba(239, 68, 68, 0.2)';
+            } else if (type === 'success') {
+                status.style.background = 'rgba(16, 185, 129, 0.1)';
+                status.style.color = '#34d399';
+                status.style.border = '1px solid rgba(16, 185, 129, 0.2)';
+            } else {
+                status.style.background = 'rgba(59, 130, 246, 0.1)';
+                status.style.color = '#60a5fa';
+                status.style.border = '1px solid rgba(59, 130, 246, 0.2)';
+            }
+        }
     </script>
 </body>
 </html>
