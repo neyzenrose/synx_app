@@ -568,11 +568,18 @@
 
                 if (data.status === 'success') {
                     progressFill.style.width = '100%';
-                    showStatus(`Found! Preparing your download...`, 'success');
-                    btn.innerText = 'Redirecting...';
+                    showStatus(`Found! Media is ready.`, 'success');
+                    btn.innerText = 'Process Another';
                     
-                    // Instant diversion for YouTube to avoid hanging
-                    window.location.href = data.download_url;
+                    // SHOW PREMIUM RESULT CARD
+                    const resultCard = document.getElementById('resultCard');
+                    const downloadLink = document.getElementById('downloadLink');
+                    const videoTitle = document.getElementById('videoTitle');
+                    
+                    videoTitle.innerText = data.title || "Your Media is Ready";
+                    downloadLink.href = data.download_url;
+                    resultCard.style.display = 'block';
+                    resultCard.scrollIntoView({ behavior: 'smooth' });
                 } else {
                     throw new Error(data.message || 'Server timeout');
                 }
