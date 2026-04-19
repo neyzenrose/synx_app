@@ -8,26 +8,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #030408;
-            --surface-color: #0d0f17;
+            --bg-color: #f8fafc;
+            --surface-color: #ffffff;
             --primary-accent: #6d28d9;
             --secondary-accent: #06b6d4;
-            --text-primary: #ffffff;
-            --text-secondary: #94a3b8;
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: #e2e8f0;
             --gradient-accent: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column; }
-        
-        nav { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); backdrop-filter: blur(10px); }
-        .logo { font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 800; background: var(--gradient-accent); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
-        .btn-home { color: white; text-decoration: none; font-size: 14px; background: var(--glass-bg); padding: 8px 16px; border-radius: 20px; border: 1px solid var(--glass-border); }
-
-        .container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
-        .card { background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(30px); padding: 50px 40px; border-radius: 30px; width: 100%; max-width: 650px; box-shadow: 0 40px 100px -20px rgba(0,0,0,0.6); }
 
         h1 { font-family: 'Outfit', sans-serif; font-size: 38px; text-align: center; margin-bottom: 30px; letter-spacing: -1px; }
         .input-box { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 18px 24px; border-radius: 12px; color: white; font-size: 16px; margin-bottom: 20px; outline: none; transition: border 0.3s; }

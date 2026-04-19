@@ -11,15 +11,15 @@
     <link rel="icon" type="image/png" href="/static/logo.png">
     <style>
         :root {
-            --bg-color: #030408;
-            --surface-color: #0d0f17;
+            --bg-color: #f8fafc;
+            --surface-color: #ffffff;
             --primary-accent: #6d28d9; /* Deep Purple */
             --secondary-accent: #06b6d4; /* Cyan */
-            --text-primary: #ffffff;
-            --text-secondary: #94a3b8;
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --gradient-text: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(226, 232, 240, 0.8);
+            --gradient-text: linear-gradient(135deg, #0f172a 0%, #334155 100%);
             --gradient-accent: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
         }
 
@@ -50,7 +50,7 @@
             left: -10%;
             width: 60%;
             height: 60%;
-            background: radial-gradient(circle, rgba(109, 40, 217, 0.15) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(109, 40, 217, 0.03) 0%, transparent 70%);
             z-index: -1;
             filter: blur(100px);
         }
@@ -61,7 +61,7 @@
             right: -10%;
             width: 50%;
             height: 50%;
-            background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.03) 0%, transparent 70%);
             z-index: -1;
             filter: blur(100px);
         }
@@ -106,7 +106,7 @@
         }
 
         .nav-links a:hover {
-            color: var(--text-primary);
+            color: var(--primary-accent);
         }
 
         .btn-app {
@@ -134,9 +134,9 @@
         }
 
         .badge-new {
-            background: rgba(109, 40, 217, 0.1);
-            border: 1px solid rgba(109, 40, 217, 0.3);
-            color: #a78bfa;
+            background: rgba(109, 40, 217, 0.05);
+            border: 1px solid rgba(109, 40, 217, 0.15);
+            color: var(--primary-accent);
             padding: 6px 16px;
             border-radius: 30px;
             font-size: 13px;
@@ -190,20 +190,21 @@
         }
 
         .btn-secondary {
-            background: var(--glass-bg);
+            background: #ffffff;
             border: 1px solid var(--glass-border);
-            color: white;
+            color: var(--text-primary);
             padding: 16px 36px;
             border-radius: 12px;
             font-weight: 700;
             font-size: 18px;
             text-decoration: none;
             transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
         .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.2);
+            background: #f1f5f9;
+            border-color: #cbd5e1;
         }
 
         /* --- Platforms Section --- */
@@ -247,11 +248,13 @@
             transition: all 0.3s;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
         }
 
         .platform-card:hover {
-            border-color: rgba(255,255,255,0.2);
+            border-color: var(--primary-accent);
             transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
         }
 
         .platform-card svg {
@@ -274,9 +277,9 @@
 
         .btn-download {
             display: inline-block;
-            background: rgba(255,255,255,0.05);
+            background: #f1f5f9;
             border: 1px solid var(--glass-border);
-            color: white;
+            color: var(--text-primary);
             padding: 10px 20px;
             border-radius: 8px;
             text-decoration: none;
@@ -286,8 +289,9 @@
         }
 
         .btn-download:hover {
-            background: white;
-            color: var(--bg-color);
+            background: var(--primary-accent);
+            color: white;
+            border-color: var(--primary-accent);
         }
 
         /* --- Footer --- */
@@ -445,7 +449,7 @@
     </section>
 
     <!-- Pricing Section -->
-    <section id="pricing" class="platforms" style="background: radial-gradient(circle at center, #1a0b30 0%, #030408 100%);">
+    <section id="pricing" class="platforms" style="background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);">
         <div class="platforms-header">
             <h2 class="section-title">Ready to unlock full power?</h2>
             <p class="section-subtitle">Choose the perfect plan for your media needs. Start for free, upgrade when you need more.</p>
@@ -453,45 +457,45 @@
         
         <div class="platforms-grid">
             <!-- Free Plan -->
-            <div class="platform-card" style="border: 1px solid rgba(255,255,255,0.1);">
+            <div class="platform-card" style="border: 1px solid #e2e8f0; background: #ffffff;">
                 <div style="font-size: 14px; color: var(--secondary-accent); font-weight: 700; margin-bottom: 10px; text-transform: uppercase;">Basic</div>
                 <h3 style="font-size: 32px; margin-bottom: 15px;">Free</h3>
-                <ul style="list-style: none; padding: 0; text-align: left; margin-bottom: 30px; font-size: 15px; color: #a0a0a0; line-height: 2;">
+                <ul style="list-style: none; padding: 0; text-align: left; margin-bottom: 30px; font-size: 15px; color: var(--text-secondary); line-height: 2;">
                     <li><i style="color: #4CAF50;">✓</i> 5 High-speed downloads / day</li>
                     <li><i style="color: #4CAF50;">✓</i> Up to 1080p Quality</li>
                     <li><i style="color: #4CAF50;">✓</i> MP4 & MP3 Formats</li>
                     <li style="opacity: 0.5;"><i style="color: #ff4d4d;">✕</i> No Batch Downloading</li>
                     <li style="opacity: 0.5;"><i style="color: #ff4d4d;">✕</i> Priority Support</li>
                 </ul>
-                <a href="/app" class="btn-download" style="width: 100%; display: inline-block; padding: 12px 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">Get Started</a>
+                <a href="/app" class="btn-download" style="width: 100%; display: inline-block; padding: 12px 0;">Get Started</a>
             </div>
 
             <!-- Pro Plan -->
-            <div class="platform-card" style="border: 2px solid var(--primary-accent); transform: scale(1.05); background: rgba(110, 64, 255, 0.05);">
-                <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: var(--gradient-accent); padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: 800; text-transform: uppercase;">Most Popular</div>
-                <div style="font-size: 14px; color: var(--secondary-accent); font-weight: 700; margin-bottom: 10px; text-transform: uppercase;">Unlimited</div>
-                <h3 style="font-size: 32px; margin-bottom: 15px;">$9.99<span style="font-size: 14px; color: #808080;">/mo</span></h3>
-                <ul style="list-style: none; padding: 0; text-align: left; margin-bottom: 30px; font-size: 15px; color: #d0d0d0; line-height: 2;">
+            <div class="platform-card" style="border: 2px solid var(--primary-accent); transform: scale(1.05); background: #ffffff; box-shadow: 0 20px 40px rgba(109, 40, 217, 0.1);">
+                <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); background: var(--gradient-accent); padding: 5px 15px; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; font-size: 11px; font-weight: 800; text-transform: uppercase; color: white;">Most Popular</div>
+                <div style="font-size: 14px; color: var(--secondary-accent); font-weight: 700; margin-bottom: 10px; text-transform: uppercase; margin-top: 15px;">Unlimited</div>
+                <h3 style="font-size: 32px; margin-bottom: 15px;">$9.99<span style="font-size: 14px; color: var(--text-secondary);">/mo</span></h3>
+                <ul style="list-style: none; padding: 0; text-align: left; margin-bottom: 30px; font-size: 15px; color: var(--text-primary); line-height: 2;">
                     <li><i style="color: #4CAF50;">✓</i> Unlimited Daily Downloads</li>
                     <li><i style="color: #4CAF50;">✓</i> 4K & 8K Ultra Quality</li>
                     <li><i style="color: #4CAF50;">✓</i> Batch Processing</li>
                     <li><i style="color: #4CAF50;">✓</i> Private Proxy Access</li>
                     <li><i style="color: #4CAF50;">✓</i> 24/7 Priority Support</li>
                 </ul>
-                <a href="#" class="btn-download" style="width: 100%; display: inline-block; padding: 12px 0;">Go Unlimited</a>
+                <a href="#" class="btn-download" style="width: 100%; display: inline-block; padding: 12px 0; background: var(--gradient-accent); color: white; border: none;">Go Unlimited</a>
             </div>
 
             <!-- Lifetime Plan -->
-            <div class="platform-card" style="border: 1px solid rgba(255,255,255,0.1);">
+            <div class="platform-card" style="border: 1px solid #e2e8f0; background: #ffffff;">
                 <div style="font-size: 14px; color: var(--secondary-accent); font-weight: 700; margin-bottom: 10px; text-transform: uppercase;">Lifetime</div>
-                <h3 style="font-size: 32px; margin-bottom: 15px;">$49.99<span style="font-size: 14px; color: #808080;">/once</span></h3>
-                <ul style="list-style: none; padding: 0; text-align: left; margin-bottom: 30px; font-size: 15px; color: #a0a0a0; line-height: 2;">
+                <h3 style="font-size: 32px; margin-bottom: 15px;">$49.99<span style="font-size: 14px; color: var(--text-secondary);">/once</span></h3>
+                <ul style="list-style: none; padding: 0; text-align: left; margin-bottom: 30px; font-size: 15px; color: var(--text-secondary); line-height: 2;">
                     <li><i style="color: #4CAF50;">✓</i> All Pro Features</li>
                     <li><i style="color: #4CAF50;">✓</i> Lifetime Updates</li>
                     <li><i style="color: #4CAF50;">✓</i> Early Access to Mobile App</li>
                     <li><i style="color: #4CAF50;">✓</i> One-time Payment</li>
                 </ul>
-                <a href="#" class="btn-download" style="width: 100%; display: inline-block; padding: 12px 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">Buy Once</a>
+                <a href="#" class="btn-download" style="width: 100%; display: inline-block; padding: 12px 0;">Buy Once</a>
             </div>
         </div>
 
