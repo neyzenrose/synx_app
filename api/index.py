@@ -63,7 +63,7 @@ def download():
     quality = data.get('quality', 'best')
     
     # PRODUCTION PROXY: Integrated Webshare.io Residential Proxy
-    PROXY_URL = "http://snrkekxx-1:fcadsu23a4e1@p.webshare.io:80"
+    PROXY_URL = "http://snrkekxx-11:fcadsu23a4e1@p.webshare.io:80"
 
     # Link Normalization
     vid_id = None
