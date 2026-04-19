@@ -107,17 +107,42 @@ def download():
                 ydl_opts['format'] = f'bestvideo[height<={quality}][ext={format_type}]+bestaudio[ext=m4a]/best[height<={quality}][ext={format_type}]/best'
             ydl_opts['merge_output_format'] = format_type
     else:
-        # Fallback if FFmpeg is not available: download best single file
         ydl_opts['format'] = 'best'
+    return ydl_opts
 
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/index.html')
+def index_html():
+    return render_template('index.html')
+
+@app.route('/app')
+def app_page():
+    return render_template('app.html')
+
+@app.route('/app.html')
+def app_html():
+    return render_template('app.html')
+
+@app.route('/api/download', methods=['POST'])
+def download():
+    data = request.json
+    url = data.get('url')
+    if not url:
+        return jsonify({"error": "No URL provided"}), 400
+    
+    format_type = data.get('format', 'mp4')
+    quality = data.get('quality', 'best')
+    PROXY_URL = os.environ.get('PROXY_URL')
+
+    # Step 1: Try local download (yt-dlp)
     try:
+        ydl_opts = get_ydl_opts(format_type, quality, PROXY_URL)
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             filename = ydl.prepare_filename(info)
-            
-            # If we asked for mp3 but ffmpeg was missing, the ext might still be video
-            # or the user gets the best audio-only file available without conversion.
-            
             return jsonify({
                 "status": "success",
                 "title": info.get('title', 'Video'),
@@ -125,7 +150,30 @@ def download():
                 "download_url": f"/files/{os.path.basename(filename)}"
             })
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        error_str = str(e)
+        if "Sign in to confirm you're not a bot" in error_str or "HTTP Error 403" in error_str:
+            # STEP 2: EMERGENCY FALLBACK (Using a robust external engine)
+            print("Local engine blocked. Switching to Emergency Bypass...")
+            try:
+                external_api = "https://api.cobalt.tools/api/json"
+                headers = { "Accept": "application/json", "Content-Type": "application/json" }
+                payload = { "url": url, "vQuality": quality, "isAudioOnly": (format_type == "mp3") }
+                
+                resp = requests.post(external_api, json=payload, headers=headers)
+                ext_result = resp.json()
+                
+                if ext_result.get("status") == "stream" or ext_result.get("status") == "redirect":
+                    return jsonify({
+                        'status': 'success',
+                        'title': ext_result.get("text", "Video"),
+                        'download_url': ext_result.get("url"),
+                        'message': 'Downloaded via Synx Ultra Bypass'
+                    })
+            except:
+                pass
+        
+        # If everything fails
+        return jsonify({'status': 'error', 'message': error_str}), 500
 
 @app.route('/files/<path:filename>')
 def serve_file(filename):
