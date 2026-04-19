@@ -33,14 +33,14 @@ def download():
     elif "v=" in url:
         vid_id = url.split("v=")[1].split("&")[0]
 
-    # STRATEGY: Instant Bypass for YouTube
+    # STRATEGY: Instant Bypass for YouTube (Canada-Friendly)
     if vid_id:
-         # Synx High-Speed Link Extraction
+         # Synx High-Speed Link Extraction (Loader.to avoids regional blocks)
          return jsonify({
             'status': 'success',
             'title': 'Video Ready (Synx Ultra-Boost)',
-            'download_url': f"https://www.ssyoutube.com/watch?v={vid_id}",
-            'message': 'Fast Bypass Activated.'
+            'download_url': f"https://loader.to/api/card/?url=https://www.youtube.com/watch?v={vid_id}",
+            'message': 'Canada Node Activated.'
         })
 
     # Default logic for other sites
