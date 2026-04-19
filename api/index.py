@@ -36,11 +36,10 @@ def download():
     # STRATEGY: Instant Bypass for YouTube (Canada-Friendly)
     if vid_id:
          # Synx High-Speed Link Extraction (Loader.to avoids regional blocks)
-         return jsonify({
             'status': 'success',
-            'title': 'Video Ready (Synx Ultra-Boost)',
+            'title': 'Found in Canada! (Synx Node)',
             'download_url': f"https://loader.to/api/card/?url=https://www.youtube.com/watch?v={vid_id}",
-            'message': 'Canada Node Activated.'
+            'message': 'Canada Engine Activated.'
         })
 
     # Default logic for other sites
