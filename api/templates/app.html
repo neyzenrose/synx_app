@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SYNX | Universal Media Downloader</title>
-    <meta name="description" content="Download video and audio from any platform with SYNX. Available for Web, Android, iOS, and Linux.">
+    <meta name="description" content="Download video and audio from any platform with SYNX.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -13,8 +13,8 @@
         :root {
             --bg-color: #030408;
             --surface-color: #0d0f17;
-            --primary-accent: #6d28d9; /* Deep Purple */
-            --secondary-accent: #06b6d4; /* Cyan */
+            --primary-accent: #6d28d9;
+            --secondary-accent: #06b6d4;
             --text-primary: #ffffff;
             --text-secondary: #94a3b8;
             --glass-bg: rgba(255, 255, 255, 0.03);
@@ -23,585 +23,119 @@
             --gradient-accent: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-primary); overflow-x: hidden; line-height: 1.6; }
+        
+        nav { position: fixed; top: 0; width: 100%; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(12px); border-bottom: 1px solid var(--glass-border); z-index: 1000; }
+        .logo { font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 800; background: var(--gradient-accent); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .btn-app { background: var(--text-primary); color: var(--bg-color); padding: 10px 24px; border-radius: 40px; font-weight: 700; font-size: 14px; text-decoration: none; }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            overflow-x: hidden;
-            line-height: 1.6;
-        }
+        .hero { padding: 160px 20px 100px; max-width: 1200px; margin: 0 auto; text-align: center; }
+        .download-container { background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); padding: 50px 40px; border-radius: 30px; max-width: 700px; margin: 0 auto; text-align: left; box-shadow: 0 40px 100px -20px rgba(0,0,0,0.5); }
+        
+        h1 { font-family: 'Outfit', sans-serif; font-size: clamp(32px, 5vw, 42px); color: white; margin-bottom: 12px; text-align: center; }
+        .url-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 18px 24px; border-radius: 12px; color: white; font-size: 16px; margin-bottom: 20px; outline: none; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+        .select-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 14px 20px; border-radius: 12px; color: white; cursor: pointer; }
+        
+        .btn-primary { background: var(--gradient-accent); color: white; padding: 16px 36px; border-radius: 12px; font-weight: 700; font-size: 18px; text-decoration: none; box-shadow: 0 10px 40px -10px rgba(109, 40, 217, 0.5); border: none; cursor: pointer; transition: all 0.3s; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* --- Custom Scrollbar --- */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-color); }
-        ::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
-
-        /* --- Background Elements --- */
-        .bg-glow {
-            position: fixed;
-            top: -20%;
-            left: -10%;
-            width: 60%;
-            height: 60%;
-            background: radial-gradient(circle, rgba(109, 40, 217, 0.15) 0%, transparent 70%);
-            z-index: -1;
-            filter: blur(100px);
-        }
-
-        .bg-glow-bottom {
-            position: fixed;
-            bottom: -20%;
-            right: -10%;
-            width: 50%;
-            height: 50%;
-            background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%);
-            z-index: -1;
-            filter: blur(100px);
-        }
-
-        /* --- Navigation --- */
-        nav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--glass-border);
-            z-index: 1000;
-        }
-
-        .logo {
-            font-family: 'Outfit', sans-serif;
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: -1px;
-            background: var(--gradient-accent);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            cursor: pointer;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 30px;
-        }
-
-        .nav-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-
-        .nav-links a:hover {
-            color: var(--text-primary);
-        }
-
-        .btn-app {
-            background: var(--text-primary);
-            color: var(--bg-color);
-            padding: 10px 24px;
-            border-radius: 40px;
-            font-weight: 700;
-            font-size: 14px;
-            text-decoration: none;
-            transition: transform 0.2s, background 0.3s;
-        }
-
-        .btn-app:hover {
-            transform: translateY(-2px);
-            background: #e2e8f0;
-        }
-
-        /* --- Hero Section --- */
-        .hero {
-            padding: 180px 20px 100px;
-            max-width: 1200px;
-            margin: 0 auto;
-            text-align: center;
-        }
-
-        .badge-new {
-            background: rgba(109, 40, 217, 0.1);
-            border: 1px solid rgba(109, 40, 217, 0.3);
-            color: #a78bfa;
-            padding: 6px 16px;
-            border-radius: 30px;
-            font-size: 13px;
-            font-weight: 600;
-            display: inline-block;
-            margin-bottom: 24px;
-        }
-
-        h1 {
-            font-family: 'Outfit', sans-serif;
-            font-size: clamp(48px, 8vw, 84px);
-            line-height: 1.1;
-            font-weight: 800;
-            letter-spacing: -2px;
-            background: var(--gradient-text);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 24px;
-        }
-
-        .hero p {
-            font-size: clamp(18px, 2vw, 22px);
-            color: var(--text-secondary);
-            max-width: 700px;
-            margin: 0 auto 40px;
-        }
-
-        .cta-group {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .btn-primary {
-            background: var(--gradient-accent);
-            color: white;
-            padding: 16px 36px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 18px;
-            text-decoration: none;
-            box-shadow: 0 10px 40px -10px rgba(109, 40, 217, 0.5);
-            transition: all 0.3s;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 15px 50px -10px rgba(109, 40, 217, 0.6);
-        }
-
-        .btn-secondary {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            color: white;
-            padding: 16px 36px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 18px;
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-
-        /* --- Platforms Section --- */
-        .platforms {
-            padding: 100px 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .section-tag {
-            text-align: center;
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--secondary-accent);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            display: block;
-            margin-bottom: 12px;
-        }
-
-        .section-title {
-            text-align: center;
-            font-family: 'Outfit', sans-serif;
-            font-size: 36px;
-            font-weight: 800;
-            margin-bottom: 60px;
-        }
-
-        .platform-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-        }
-
-        .platform-card {
-            background: var(--surface-color);
-            border: 1px solid var(--glass-border);
-            padding: 40px 30px;
-            border-radius: 20px;
-            text-align: center;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .platform-card:hover {
-            border-color: rgba(255,255,255,0.2);
-            transform: translateY(-8px);
-        }
-
-        .platform-card svg {
-            width: 48px;
-            height: 48px;
-            margin-bottom: 24px;
-            color: var(--secondary-accent);
-        }
-
-        .platform-card h3 {
-            font-size: 20px;
-            margin-bottom: 12px;
-        }
-
-        .platform-card p {
-            color: var(--text-secondary);
-            font-size: 14px;
-            margin-bottom: 24px;
-        }
-
-        .btn-download {
-            display: inline-block;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--glass-border);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .btn-download:hover {
-            background: white;
-            color: var(--bg-color);
-        }
-
-        /* --- Footer --- */
-        footer {
-            padding: 100px 40px 40px;
-            border-top: 1px solid var(--glass-border);
-            text-align: center;
-        }
-
-        .footer-logo {
-            font-family: 'Outfit', sans-serif;
-            font-size: 24px;
-            font-weight: 800;
-            margin-bottom: 20px;
-            display: block;
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
-        }
-
-        .footer-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 14px;
-            transition: color 0.3s;
-        }
-
-        .footer-links a:hover {
-            color: white;
-        }
-
-        .copyright {
-            font-size: 12px;
-            color: var(--text-secondary); opacity: 0.5;
-        }
-
-        /* --- Animations --- */
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
-
-        .float-anim { animation: float 6s ease-in-out infinite; }
-
-        @media (max-width: 768px) {
-            nav { padding: 15px 20px; }
-            .nav-links { display: none; }
-            .hero { padding-top: 140px; }
-            h1 { font-size: 48px; }
-        }
+        .status-box { margin-top: 20px; padding: 15px; border-radius: 10px; font-size: 14px; text-align: center; display: none; }
+        .progress-container { margin-top: 20px; display: none; }
+        .progress-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+        .progress-bar-fill { height: 100%; width: 0%; background: var(--gradient-accent); transition: width 0.3s; }
+        
+        /* Result Card Styling */
+        .result-card { display: none; margin-top: 30px; padding: 25px; background: rgba(109, 40, 217, 0.1); border: 2px solid var(--primary-accent); border-radius: 20px; animation: slideIn 0.5s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-    <div class="bg-glow"></div>
-    <div class="bg-glow-bottom"></div>
-
     <nav>
-        <a href="/" class="logo" style="text-decoration: none; display: flex; align-items: center; gap: 15px;">
-            <img src="/static/logo.png" alt="SYNX Logo" style="height: 65px; width: auto;">
-            <span style="font-family: 'Outfit', sans-serif; font-size: 32px; font-weight: 800; background: var(--gradient-accent); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">SYNX</span>
+        <a href="/" class="logo">
+            <img src="/static/logo.png" alt="SYNX Logo" style="height: 40px;">
+            <span>SYNX</span>
         </a>
-        <div class="nav-links">
-            <a href="/#features">Features</a>
-            <a href="/#platforms">Platforms</a>
-            <a href="#">API</a>
-            <a href="/#support">Support</a>
-        </div>
         <a href="/" class="btn-app">Back to Home</a>
     </nav>
 
     <section class="hero">
         <div class="download-container">
-            <h1>Start your download</h1>
-            <p>Paste an URL from YouTube, Instagram, TikTok or 1000+ other sites.</p>
-
-            <div class="input-group">
-                <input type="text" id="videoUrl" placeholder="https://www.youtube.com/watch?v=..." class="url-input">
-            </div>
-
-            <div class="options-grid">
-                <div class="option-item">
-                    <select id="formatType" class="select-input">
-                        <option value="mp4">Video (MP4)</option>
-                        <option value="mp3">Audio (MP3)</option>
-                        <option value="mkv">Video (MKV)</option>
-                        <option value="wav">Audio (WAV)</option>
-                    </select>
-                </div>
-                <div class="option-item">
-                    <select id="qualityType" class="select-input">
-                        <option value="best">Highest Quality</option>
-                        <option value="1080">Full HD (1080p)</option>
-                        <option value="720">HD (720p)</option>
-                        <option value="480">Standard (480p)</option>
-                        <option value="320">320kbps (Audio)</option>
-                        <option value="128">128kbps (Audio)</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="terms-group">
-                <input type="checkbox" id="termsAgree" checked>
-                <label for="termsAgree">I agree that I am solely responsible for the content I download. I will only download media that is for personal use or for which I have explicit permission from the copyright owner.</label>
-            </div>
-
-            <button onclick="startDownload()" id="downloadBtn" class="btn-primary" style="width: 100%; border: none; cursor: pointer; margin-top: 20px;">Download Now</button>
-
-            <div id="statusMessage" class="status-box" style="display: none;"></div>
+            <h1>Start download</h1>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 30px;">Paste a link from 1000+ supported sites.</p>
             
-            <div id="progressContainer" class="progress-container" style="display: none;">
-                <div class="progress-bar">
-                    <div id="progressBarFill" class="progress-bar-fill"></div>
-                </div>
-                <p id="progressText">Processing...</p>
+            <input type="text" id="videoUrl" placeholder="Paste link here..." class="url-input">
+            
+            <div class="options-grid">
+                <select id="formatType" class="select-input">
+                    <option value="mp4">Video (MP4)</option>
+                    <option value="mp3">Audio (MP3)</option>
+                </select>
+                <select id="qualityType" class="select-input">
+                    <option value="best">Highest Quality</option>
+                    <option value="1080">Full HD</option>
+                </select>
             </div>
 
-            <!-- PREMUM RESULT CARD -->
-            <div id="resultCard" style="display: none; margin-top: 30px; padding: 25px; background: rgba(109, 40, 217, 0.1); border: 2px solid var(--primary-accent); border-radius: 20px; animation: slideIn 0.5s ease-out;">
+            <button onclick="startDownload()" id="downloadBtn" class="btn-primary" style="width: 100%;">Download Now</button>
+
+            <div id="statusMessage" class="status-box"></div>
+            
+            <div id="progressContainer" class="progress-container">
+                <div class="progress-bar"><div id="progressBarFill" class="progress-bar-fill"></div></div>
+                <p id="progressText" style="font-size: 12px; color: var(--text-secondary);">Processing...</p>
+            </div>
+
+            <!-- RESULT CARD -->
+            <div id="resultCard" class="result-card">
                 <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
                     <div style="width: 50px; height: 50px; background: var(--gradient-accent); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">🎬</div>
-                    <div style="flex: 1;">
-                        <h4 id="videoTitle" style="font-size: 18px; color: white; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">Media Ready</h4>
-                        <p style="font-size: 13px; color: var(--secondary-accent); font-weight: 600;">Verified by Synx Engine</p>
+                    <div>
+                        <h4 id="videoTitle" style="font-size: 18px; color: white;">Media Ready</h4>
+                        <p style="font-size: 12px; color: var(--secondary-accent);">Verified by Synx Engine</p>
                     </div>
                 </div>
-                <a id="downloadLink" href="#" target="_blank" class="btn-primary" style="width: 100%; display: block; text-align: center; font-size: 16px; text-decoration: none; box-shadow: 0 10px 30px rgba(109, 40, 217, 0.3);">Download Now</a>
-                <p style="text-align: center; font-size: 11px; color: var(--text-secondary); margin-top: 15px; opacity: 0.7;">Secure download link. Valid for a limited time.</p>
+                <a id="downloadLink" href="#" target="_blank" class="btn-primary" style="width: 100%; display: block; text-align: center;">Download Now</a>
             </div>
-            
-            <style>
-                @keyframes slideIn {
-                    from { opacity: 0; transform: translateY(20px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-            </style>
         </div>
     </section>
 
-    <style>
-        .download-container {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(20px);
-            padding: 50px 40px;
-            border-radius: 30px;
-            max-width: 700px;
-            margin: 0 auto;
-            text-align: left;
-            box-shadow: 0 40px 100px -20px rgba(0,0,0,0.5);
-        }
-
-        .download-container h1 {
-            font-size: 32px;
-            margin-bottom: 12px;
-            text-align: center;
-        }
-
-        .download-container p {
-            font-size: 16px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .url-input {
-            width: 100%;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--glass-border);
-            padding: 18px 24px;
-            border-radius: 12px;
-            color: white;
-            font-size: 16px;
-            margin-bottom: 20px;
-            outline: none;
-            transition: all 0.3s;
-        }
-
-        .url-input:focus {
-            background: rgba(255,255,255,0.08);
-            border-color: var(--primary-accent);
-        }
-
-        .options-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-
-        .select-input {
-            width: 100%;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--glass-border);
-            padding: 14px 20px;
-            border-radius: 12px;
-            color: white;
-            font-size: 14px;
-            outline: none;
-            cursor: pointer;
-        }
-
-        .terms-group {
-            display: flex;
-            gap: 12px;
-            align-items: flex-start;
-            margin-top: 10px;
-        }
-
-        .terms-group label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            line-height: 1.4;
-        }
-
-        .status-box {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 14px;
-            text-align: center;
-        }
-
-        .progress-container {
-            margin-top: 20px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 10px;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            width: 0%;
-            background: var(--gradient-accent);
-            transition: width 0.3s;
-        }
-
-        #progressText {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-    </style>
-
     <script>
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
-
         async function startDownload() {
             const url = document.getElementById('videoUrl').value;
-            const format = document.getElementById('formatType').value;
-            const quality = document.getElementById('qualityType').value;
             const btn = document.getElementById('downloadBtn');
-            const status = document.getElementById('statusMessage');
             const progress = document.getElementById('progressContainer');
             const progressFill = document.getElementById('progressBarFill');
+            const resultCard = document.getElementById('resultCard');
+            const videoTitle = document.getElementById('videoTitle');
+            const downloadLink = document.getElementById('downloadLink');
 
-            if (!url) {
-                showStatus('Please paste a valid URL', 'error');
-                return;
-            }
+            if (!url) return;
 
-            // UI Feedback
             btn.disabled = true;
             btn.innerText = 'Initializing...';
-            showStatus('Connecting to server...', 'info');
             progress.style.display = 'block';
-            progressFill.style.width = '10%';
+            progressFill.style.width = '20%';
+            resultCard.style.display = 'none';
 
             try {
-                showStatus("Connecting to Synx Cloud...", 'info');
                 const response = await fetch('/api/download', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url, format, quality })
+                    body: JSON.stringify({ url })
                 });
-
                 const data = await response.json();
 
                 if (data.status === 'success') {
                     progressFill.style.width = '100%';
-                    showStatus(`Found! Media is ready.`, 'success');
-                    btn.innerText = 'Process Another';
-                    
-                    // SHOW PREMIUM RESULT CARD
-                    const resultCard = document.getElementById('resultCard');
-                    const downloadLink = document.getElementById('downloadLink');
-                    const videoTitle = document.getElementById('videoTitle');
-                    
                     videoTitle.innerText = data.title || "Your Media is Ready";
                     downloadLink.href = data.download_url;
                     resultCard.style.display = 'block';
-                    resultCard.scrollIntoView({ behavior: 'smooth' });
+                    btn.innerText = 'Ready!';
+                    showStatus('Found! Click Download Now below.', 'success');
                 } else {
-                    throw new Error(data.message || 'Server timeout');
+                    throw new Error(data.message);
                 }
             } catch (err) {
                 showStatus('Error: ' + err.message, 'error');
@@ -615,20 +149,8 @@
             const status = document.getElementById('statusMessage');
             status.style.display = 'block';
             status.innerText = msg;
-            
-            if (type === 'error') {
-                status.style.background = 'rgba(239, 68, 68, 0.1)';
-                status.style.color = '#f87171';
-                status.style.border = '1px solid rgba(239, 68, 68, 0.2)';
-            } else if (type === 'success') {
-                status.style.background = 'rgba(16, 185, 129, 0.1)';
-                status.style.color = '#34d399';
-                status.style.border = '1px solid rgba(16, 185, 129, 0.2)';
-            } else {
-                status.style.background = 'rgba(59, 130, 246, 0.1)';
-                status.style.color = '#60a5fa';
-                status.style.border = '1px solid rgba(59, 130, 246, 0.2)';
-            }
+            status.style.background = type === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)';
+            status.style.color = type === 'error' ? '#ef4444' : '#10b981';
         }
     </script>
 </body>
