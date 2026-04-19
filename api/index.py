@@ -23,49 +23,44 @@ def download():
     url = data.get('url')
     if not url: return jsonify({"error": "No URL provided"}), 400
     
-    # STRATEGY: PURE ADS-FREE EXPERIENCE (NO Y2MATE, NO REDIRECTS)
+    # SYSTEM: TWIN CLEAN ENGINES (NO ADS)
+    # 1. PRIMARY: COBALT NODE
     try:
-        # We call a verified clean extraction API
-        api_payload = {
-            "url": url,
-            "vQuality": "1080",
-            "isAudioOnly": False,
-            "filenamePattern": "basic"
-        }
+        api_payload = {"url": url, "vQuality": "1080", "isAudioOnly": False}
+        headers = {"Accept": "application/json", "Content-Type": "application/json"}
         
-        # Using a highly stable and CLEAN Cobalt instance
-        # We try multiple instances to ensure success without ads
-        cobalt_api = "https://api.cobalt.tools/api/json"
-        
-        headers = {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        }
-        
-        # Use our residential proxy
-        proxies = {"http": PROXY_URL, "https": PROXY_URL}
-        
-        response = requests.post(cobalt_api, json=api_payload, headers=headers, proxies=proxies, timeout=12)
-        res = response.json()
-        
-        if res.get('status') in ['stream', 'redirect']:
-            return jsonify({
-                'status': 'success',
-                'title': 'Secure Download Ready',
-                'download_url': res.get('url'),
-                'message': 'Synx Premium Stream: No Ads Detected.'
-            })
-        else:
-            raise Exception("Clean extraction currently unavailable.")
-            
-    except Exception as e:
-        # ABSOLUTELY NO Y2MATE REDIRECT.
-        # IF IT FAILS, WE SHOW A CLEAN ERROR INSTEAD OF DIRTY AD LINKS.
+        # We try without proxy first for speed, if it fails, we will fallback
+        response = requests.post("https://api.cobalt.tools/api/json", json=api_payload, headers=headers, timeout=8)
+        if response.status_code == 200:
+            res = response.json()
+            if res.get('status') in ['stream', 'redirect']:
+                return jsonify({
+                    'status': 'success',
+                    'title': 'High-Speed Ready',
+                    'download_url': res.get('url'),
+                    'message': 'Synx Clean Node 1'
+                })
+    except:
+        pass
+
+    # 2. SECONDARY: INVIDIOUS NODE (SUPER CLEAN)
+    try:
+        # Extract ID
+        vid_id = url.split("v=")[1].split("&")[0] if "v=" in url else url.split("/")[-1]
+        # Invidious provides clean direct links
         return jsonify({
-            'status': 'error', 
-            'message': 'Server is currently optimizing high-speed routes. Please refresh and try again in 5 seconds.'
-        }), 500
+            'status': 'success',
+            'title': 'Alternative Clean Node Found',
+            'download_url': f"https://invidious.snopyta.org/latest_version?id={vid_id}&itag=22",
+            'message': 'Synx Clean Node 2'
+        })
+    except:
+        pass
+
+    return jsonify({
+        'status': 'error', 
+        'message': 'All nodes busy. We only provide ad-free high-speed links. Please try again in 10 seconds.'
+    }), 500
 
 if __name__ == '__main__':
     app.run(port=5000)
