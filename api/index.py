@@ -35,6 +35,15 @@ def get_ydl_opts(format_type, quality, proxy):
     
     ffmpeg_bin = ensure_ffmpeg()
     
+    # Advanced Bypass: Rotating Client Identities & Simulated Visitor Data
+    CLIENT_PARAMS = [
+        {'player_client': ['android'], 'player_skip': ['web']},
+        {'player_client': ['ios'], 'player_skip': ['web']},
+        {'player_client': ['tv'], 'player_skip': ['web']},
+        {'player_client': ['mweb'], 'player_skip': ['web']}
+    ]
+    selected_client = random.choice(CLIENT_PARAMS)
+
     ydl_opts = {
         'outtmpl': f'{DOWNLOAD_DIR}/%(title)s.%(ext)s',
         'quiet': True,
@@ -45,9 +54,15 @@ def get_ydl_opts(format_type, quality, proxy):
         'proxy': proxy if proxy else None,
         'extractor_args': {
             'youtube': {
-                'player_client': ['tv', 'mweb', 'android', 'ios'],
+                **selected_client,
+                'skip': ['hls', 'dash'] # Faster extraction, avoiding some blocks
             }
         },
+        'http_headers': {
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'en-us,en;q=0.5',
+            'Sec-Fetch-Mode': 'navigate',
+        }
     }
 
     if ffmpeg_bin:
