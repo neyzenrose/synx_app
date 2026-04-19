@@ -11,8 +11,7 @@ import yt_dlp
 app = Flask(__name__, template_folder='templates')
 CORS(app)
 
-# Use /tmp for everything in Vercel
-DOWNLOAD_DIR = '/tmp'
+# PROXY CONFIGURATION
 PROXY_URL = "http://snrkekxx-11:fcadsu23a4e1@p.webshare.io:80"
 
 @app.route('/')
@@ -29,35 +28,33 @@ def download():
     if not url: return jsonify({"error": "No URL provided"}), 400
     
     vid_id = None
-    if "youtu.be" in url: vid_id = url.split("/")[-1]
-    elif "v=" in url: vid_id = url.split("v=")[1].split("&")[0]
+    if "youtu.be" in url:
+        vid_id = url.split("/")[-1].split("?")[0]
+    elif "v=" in url:
+        vid_id = url.split("v=")[1].split("&")[0]
 
-    # INSTANT BYPASS CHANNEL (1-Second Response Time)
+    # STRATEGY: Instant Bypass for YouTube
     if vid_id:
+         # Synx High-Speed Link Extraction
          return jsonify({
             'status': 'success',
-            'title': 'Download Ready (Synx Ultra-Boost)',
-            'download_url': f"https://vevioz.com/api/button/videos/{vid_id}",
-            'message': 'Instant Bypass Powered by Synx.'
+            'title': 'Video Ready (Synx Ultra-Boost)',
+            'download_url': f"https://www.ssyoutube.com/watch?v={vid_id}",
+            'message': 'Fast Bypass Activated.'
         })
 
-    # Rest of logic...
-            
-    except Exception as e:
-        # Emergency Redirect Fallback (Cobalt/Vevioz)
-        vid_id = None
-        if "youtu.be" in url: vid_id = url.split("/")[-1]
-        elif "v=" in url: vid_id = url.split("v=")[1].split("&")[0]
-        
-        if vid_id:
-             return jsonify({
-                'status': 'success',
-                'title': 'Video Ready (Global Bypass)',
-                'download_url': f"https://vevioz.com/api/button/videos/{vid_id}",
-                'message': 'Switched to backup channel.'
+    # Default logic for other sites
+    try:
+        ydl_opts = {'proxy': PROXY_URL, 'quiet': True, 'nocheckcertificate': True}
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            return jsonify({
+                "status": "success",
+                "title": info.get('title', 'Media'),
+                "download_url": info.get('url')
             })
-        
-        return jsonify({'status': 'error', 'message': "System busy. Please try another link.", 'debug': str(e)}), 500
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(port=5000)
