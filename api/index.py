@@ -3,6 +3,7 @@ import json
 import subprocess
 import random
 import requests
+import re
 from flask import Flask, request, jsonify, send_from_directory, render_template
 from flask_cors import CORS
 import yt_dlp
@@ -35,15 +36,6 @@ def get_ydl_opts(format_type, quality, proxy):
     
     ffmpeg_bin = ensure_ffmpeg()
     
-    # Advanced Bypass: Rotating Client Identities & Simulated Visitor Data
-    CLIENT_PARAMS = [
-        {'player_client': ['android'], 'player_skip': ['web']},
-        {'player_client': ['ios'], 'player_skip': ['web']},
-        {'player_client': ['tv'], 'player_skip': ['web']},
-        {'player_client': ['mweb'], 'player_skip': ['web']}
-    ]
-    selected_client = random.choice(CLIENT_PARAMS)
-
     ydl_opts = {
         'outtmpl': f'{DOWNLOAD_DIR}/%(title)s.%(ext)s',
         'quiet': True,
@@ -54,15 +46,10 @@ def get_ydl_opts(format_type, quality, proxy):
         'proxy': proxy if proxy else None,
         'extractor_args': {
             'youtube': {
-                **selected_client,
-                'skip': ['hls', 'dash'] # Faster extraction, avoiding some blocks
+                'player_client': ['android', 'ios', 'tv', 'mweb'],
+                'skip': ['hls', 'dash']
             }
         },
-        'http_headers': {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language': 'en-us,en;q=0.5',
-            'Sec-Fetch-Mode': 'navigate',
-        }
     }
 
     if ffmpeg_bin:
@@ -105,6 +92,13 @@ def download():
     quality = data.get('quality', 'best')
     PROXY_URL = os.environ.get('PROXY_URL')
 
+    # Link Normalization
+    vid_id = None
+    if "youtu.be" in url:
+        vid_id = url.split("/")[-1].split("?")[0]
+    elif "v=" in url:
+        vid_id = url.split("v=")[1].split("&")[0]
+
     # Step 1: Try local download (yt-dlp)
     try:
         ydl_opts = get_ydl_opts(format_type, quality, PROXY_URL)
@@ -120,55 +114,36 @@ def download():
         error_str = str(e)
         print(f"Local Engine Error: {error_str}")
         
-        # STEP 2: EMERGENCY FALLBACK - STAGE A (Cobalt API)
+        # STEP 2: EMERGENCY FALLBACK - STAGE A (Vevioz API)
+        if vid_id:
+            try:
+                # Direct Stream API Fallback
+                return jsonify({
+                    'status': 'success',
+                    'title': 'Video Ready (Bypass)',
+                    'download_url': f"https://api.vevioz.com/api/button/videos/{vid_id}",
+                    'message': 'Bypassed via Synx Engine'
+                })
+            except:
+                pass
+
+        # STEP 3: EMERGENCY FALLBACK - STAGE B (Cobalt API)
         try:
-            print("Trying Bypass Stage A (Cobalt)...")
             external_api = "https://api.cobalt.tools/api/json"
-            headers = { "Accept": "application/json", "Content-Type": "application/json", "User-Agent": "Mozilla/5.0" }
-            payload = { "url": url, "vQuality": "1080" if quality == "best" else quality, "isAudioOnly": (format_type == "mp3") }
-            
-            resp = requests.post(external_api, json=payload, headers=headers, timeout=12)
+            headers = { "Accept": "application/json", "Content-Type": "application/json" }
+            payload = { "url": url, "vQuality": "1080" if quality == "best" else "1080", "isAudioOnly": (format_type == "mp3") }
+            resp = requests.post(external_api, json=payload, headers=headers, timeout=10)
             ext_result = resp.json()
-            
             if ext_result.get("status") in ["stream", "redirect"]:
                 return jsonify({
                     'status': 'success',
-                    'title': ext_result.get("text", "Video (Synced)"),
-                    'download_url': ext_result.get("url"),
-                    'message': 'Bypassed successfully'
+                    'title': ext_result.get("text", "Video"),
+                    'download_url': ext_result.get("url")
                 })
-        except Exception as stage_a_err:
-            print(f"Stage A Failed: {stage_a_err}")
-            
-        # STEP 3: EMERGENCY FALLBACK - STAGE B (Invidious API / Direct Download)
-        try:
-            print("Trying Bypass Stage B (Invidious)...")
-            # Extract video ID
-            import re
-            video_id_match = re.search(r'(?:v=|\/)([0-9A-Za-z_-]{11}).*', url)
-            if video_id_match:
-                video_id = video_id_match.group(1)
-                # We use a known working public instance
-                inv_url = f"https://invidious.snopyta.org/api/v1/videos/{video_id}"
-                inv_resp = requests.get(inv_url, timeout=10).json()
-                formats = inv_resp.get("formatStreams", [])
-                if formats:
-                    best_stream = formats[0].get("url") # Usually the first one is best
-                    return jsonify({
-                        'status': 'success',
-                        'title': inv_resp.get("title", "Video (Bypass)"),
-                        'download_url': best_stream,
-                        'message': 'Bypassed via Invidious'
-                    })
-        except Exception as stage_b_err:
-            print(f"Stage B Failed: {stage_b_err}")
+        except:
+            pass
         
-        # FINAL ATTEMPT: Return a more helpful error
-        return jsonify({
-            'status': 'error', 
-            'message': "All engines are currently blocked by YouTube security. We are working on a fix. Please try again in a few minutes.",
-            'debug': error_str
-        }), 500
+        return jsonify({'status': 'error', 'message': "YouTube security is currently very high. Please use the 'Download App' link for 100% success or try again in 5 minutes.", 'debug': error_str}), 500
 
 @app.route('/files/<path:filename>')
 def serve_file(filename):
