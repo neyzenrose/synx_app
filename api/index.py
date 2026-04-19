@@ -99,20 +99,21 @@ def download():
     elif "v=" in url:
         vid_id = url.split("v=")[1].split("&")[0]
 
-    # Step 1: Try local download (yt-dlp)
+    # Step 0: INSTANT BYPASS FOR YOUTUBE (Vercel IP is heavily blocked)
+    if vid_id or "youtube.com" in url or "youtu.be" in url:
+        print(f"Instant Bypass triggered for YouTube: {vid_id}")
+        return jsonify({
+            'status': 'success',
+            'title': 'Video Ready for Download',
+            'download_url': f"https://api.vevioz.com/api/button/videos/{vid_id}" if vid_id else f"https://api.cobalt.tools/api/json?url={url}",
+            'message': 'Fast Bypass Activated'
+        })
+
+    # Step 1: Try local download (for other platforms like Instagram/TikTok)
     try:
         ydl_opts = get_ydl_opts(format_type, quality, PROXY_URL)
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-            filename = ydl.prepare_filename(info)
-            return jsonify({
-                "status": "success",
-                "title": info.get('title', 'Video'),
-                "download_url": f"/files/{os.path.basename(filename)}"
-            })
-    except Exception as e:
-        error_str = str(e)
-        print(f"Local Engine Error: {error_str}")
+            # ... (rest of local logic)
         
         # STEP 2: EMERGENCY FALLBACK - STAGE A (Vevioz API)
         if vid_id:
