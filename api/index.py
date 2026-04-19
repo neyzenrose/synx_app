@@ -1,13 +1,13 @@
 import os
 import json
-import requests
+import yt_dlp
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 
 app = Flask(__name__, template_folder='templates')
 CORS(app)
 
-# PROXY CONFIGURATION
+# YOUR RESIDENTIAL PROXY - OUR ONLY OUTSIDE TOOL
 PROXY_URL = "http://snrkekxx-11:fcadsu23a4e1@p.webshare.io:80"
 
 @app.route('/')
@@ -23,38 +23,52 @@ def download():
     url = data.get('url')
     if not url: return jsonify({"error": "No URL provided"}), 400
     
-    # STRATEGY: 100% CLEAN OR NOTHING. NO AD-SUPPORTED SITES.
+    # INDEPENDENT ENGINE: Using only Synx Proxy and yt-dlp library
+    # No 3rd party APIs, no ad-supported redirectors.
     try:
-        # We exclusively use Cobalt API which is verified ad-free.
-        api_payload = {"url": url, "vQuality": "1080"}
-        headers = {"Accept": "application/json", "Content-Type": "application/json"}
+        ydl_opts = {
+            'proxy': PROXY_URL,
+            'quiet': True,
+            'no_warnings': True,
+            'nocheckcertificate': True,
+            'format': 'best', # We grab the best ready-to-download format
+            'skip_download': True,
+        }
         
-        # Multiple clean node attempts
-        nodes = ["https://api.cobalt.tools/api/json", "https://cobalt.canine.is/api/json"]
-        
-        for node in nodes:
-            try:
-                response = requests.post(node, json=api_payload, headers=headers, timeout=10)
-                if response.status_code == 200:
-                    res = response.json()
-                    if res.get('status') in ['stream', 'redirect']:
-                        return jsonify({
-                            'status': 'success',
-                            'title': 'Secure Download Ready',
-                            'download_url': res.get('url'),
-                            'message': 'Synx Verified Clean Node'
-                        })
-            except:
-                continue
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            # Step 1: Extract info directly on our server using your proxy
+            info = ydl.extract_info(url, download=False)
+            
+            # Step 2: Find the direct download URL
+            formats = info.get('formats', [])
+            # Look for a direct video link that is usually hosted on googlevideo.com
+            direct_url = None
+            
+            # We filter for a stable format (usually mp4 with audio included)
+            for f in formats:
+                if f.get('acodec') != 'none' and f.get('vcodec') != 'none' and f.get('ext') == 'mp4':
+                    direct_url = f.get('url')
+                    break
+            
+            if not direct_url and formats:
+                direct_url = formats[-1].get('url') # Fallback to last format if needed
 
-        # IF CLEAN NODES FAIL, WE DO NOT REDIRECT TO AD SITES ANYMORE.
-        return jsonify({
-            'status': 'error', 
-            'message': 'Clean extraction is temporarily unavailable. We refused to show you ad-supported links for your safety.'
-        }), 500
+            if direct_url:
+                return jsonify({
+                    'status': 'success',
+                    'title': info.get('title', 'Video Ready'),
+                    'download_url': direct_url,
+                    'message': 'Synx In-House Engine Activated.'
+                })
+            else:
+                raise Exception("Could not find a direct download link.")
 
     except Exception as e:
-        return jsonify({'status': 'error', 'message': 'Safety Override: Cleaning high-speed routes.'}), 500
+        # If YouTube blocks us even with our proxy, we let the user know cleanly.
+        return jsonify({
+            'status': 'error', 
+            'message': 'The video link is temporarily restricted by the source platform. Our engine is working to bypass this.'
+        }), 500
 
 if __name__ == '__main__':
     app.run(port=5000)
