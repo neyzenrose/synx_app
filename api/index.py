@@ -33,21 +33,16 @@ def download():
     elif "v=" in url:
         vid_id = url.split("v=")[1].split("&")[0]
 
-    # STRATEGY 2024: Stealth Link Extraction (Maintains Synx Branding)
+    # STABLE BYPASS STRATEGY (Consistent across Canada/USA/Safari)
     if vid_id:
-            # Synx High-Speed Link Extraction
-            api_url = f"https://loader.to/api/card/?url=https://www.youtube.com/watch?v={vid_id}"
-            # This is a stealth extraction, we don't show this to user
-            return jsonify({
-                'status': 'success',
-                'title': 'Media Prepared',
-                'download_url': api_url,
-                'message': 'Synx High-Speed Link Ready.'
-            })
-        except:
-            pass
+         return jsonify({
+            'status': 'success',
+            'title': 'Media Prepared',
+            'download_url': f"https://loader.to/api/card/?url=https://www.youtube.com/watch?v={vid_id}",
+            'message': 'Synx Engine: Ready for download.'
+        })
 
-    # Default logic for other non-youtube sites
+    # Default logic for other platforms using Residential Proxy
     try:
         ydl_opts = {'proxy': PROXY_URL, 'quiet': True, 'nocheckcertificate': True}
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -55,10 +50,11 @@ def download():
             return jsonify({
                 "status": "success",
                 "title": info.get('title', 'Media'),
-                "download_url": info.get('url')
+                "download_url": info.get('url'),
+                "message": "Direct link extracted."
             })
     except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        return jsonify({'status': 'error', 'message': "Please try a different link or platform."}), 500
 
 if __name__ == '__main__':
     app.run(port=5000)
