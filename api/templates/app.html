@@ -85,6 +85,7 @@
                     </div>
                 </div>
                 <a id="link" href="#" target="_blank" class="btn-download" style="display: block; text-align: center; text-decoration: none;">Save to Device</a>
+                <a id="link" href="#" target="_blank" class="btn-download" style="margin-top: 20px; text-decoration: none;">Save to Device</a>
             </div>
         </div>
     </div>
@@ -92,10 +93,10 @@
     <script>
         async function startDownload() {
             const url = document.getElementById('videoUrl').value;
-            const agree = document.getElementById('agree').checked;
             const btn = document.getElementById('dlBtn');
-            const status = document.getElementById('status');
-            const progress = document.getElementById('progress');
+            const spinner = document.getElementById('spinner');
+            const statusContainer = document.getElementById('status-container');
+            const statusText = document.getElementById('status-text');
             const fill = document.getElementById('fill');
             const result = document.getElementById('result');
 
