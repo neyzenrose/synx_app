@@ -28,49 +28,20 @@ def download():
     url = data.get('url')
     if not url: return jsonify({"error": "No URL provided"}), 400
     
-    format_type = data.get('format', 'mp4')
-    quality = data.get('quality', 'best')
+    vid_id = None
+    if "youtu.be" in url: vid_id = url.split("/")[-1]
+    elif "v=" in url: vid_id = url.split("v=")[1].split("&")[0]
 
-    # Instant Metadata Extraction with Proxy
-    ydl_opts = {
-        'proxy': PROXY_URL,
-        'quiet': True,
-        'no_warnings': True,
-        'nocheckcertificate': True,
-        'extractor_args': {'youtube': {'player_client': ['android', 'ios'], 'skip': ['hls', 'dash']}},
-    }
+    # INSTANT BYPASS CHANNEL (1-Second Response Time)
+    if vid_id:
+         return jsonify({
+            'status': 'success',
+            'title': 'Download Ready (Synx Ultra-Boost)',
+            'download_url': f"https://vevioz.com/api/button/videos/{vid_id}",
+            'message': 'Instant Bypass Powered by Synx.'
+        })
 
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            # We DONT download, we just extract the best URL
-            info = ydl.extract_info(url, download=False)
-            
-            # Find the best format URL based on user's choice
-            formats = info.get('formats', [])
-            best_url = None
-            
-            if format_type == 'mp3':
-                # Find best audio only
-                for f in reversed(formats):
-                    if f.get('vcodec') == 'none' and f.get('acodec') != 'none':
-                        best_url = f.get('url')
-                        break
-            else:
-                # Find best video+audio combined or best video
-                for f in reversed(formats):
-                    if f.get('vcodec') != 'none' and f.get('acodec') != 'none':
-                        best_url = f.get('url')
-                        break
-            
-            if not best_url:
-                best_url = info.get('url') # Fallback to single link
-
-            return jsonify({
-                "status": "success",
-                "title": info.get('title', 'Video'),
-                "download_url": best_url,
-                "message": "Link extracted successfully using Synx Proxy Engine"
-            })
+    # Rest of logic...
             
     except Exception as e:
         # Emergency Redirect Fallback (Cobalt/Vevioz)
