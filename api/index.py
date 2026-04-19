@@ -53,8 +53,21 @@ def download():
     
     quality = data.get('quality', 'best')
     
+    # Video and Audio Quality
     video_formats = ['mp4', 'webm', 'mkv', 'mov', 'avi']
     audio_formats = ['mp3', 'm4a', 'wav', 'flac', 'ogg', 'aac']
+
+    # Professional User-Agents for rotation
+    USER_AGENTS = [
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/124.0.6367.88 Mobile/15E148 Safari/604.1'
+    ]
+    import random
+
+    # Configure Proxy (Optional - set via Env Var for security)
+    PROXY_URL = os.environ.get('PROXY_URL') # Format: http://user:pass@host:port
 
     # Configure yt-dlp options
     ffmpeg_bin = ensure_ffmpeg()
@@ -65,26 +78,17 @@ def download():
         'no_warnings': True,
         'nocheckcertificate': True,
         'geo_bypass': True,
-        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'user_agent': random.choice(USER_AGENTS),
+        'proxy': PROXY_URL if PROXY_URL else None,
         'add_header': [
             'Accept-Language: en-US,en;q=0.9',
             'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-            'Sec-Ch-Ua: "Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
-            'Sec-Ch-Ua-Mobile: ?0',
-            'Sec-Ch-Ua-Platform: "Windows"',
         ],
         'extractor_args': {
             'youtube': {
                 'player_client': ['tv', 'mweb', 'android', 'ios'],
-                'player_skip': ['webpage', 'hls'],
             }
         },
-        'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-            'Accept': '*/*',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Origin': 'https://www.youtube.com',
-        }
     }
 
     if ffmpeg_bin:
