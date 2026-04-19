@@ -62,13 +62,17 @@ def download():
     format_type = data.get('format', 'mp4')
     quality = data.get('quality', 'best')
     
+    # PRODUCTION PROXY: Integrated Webshare.io Residential Proxy
+    PROXY_URL = "http://snrkekxx-1:fcadsu23a4e1@p.webshare.io:80"
+
+    # Link Normalization
     vid_id = None
     if "youtu.be" in url: vid_id = url.split("/")[-1].split("?")[0]
     elif "v=" in url: vid_id = url.split("v=")[1].split("&")[0]
 
     # STAGE 1: TRY LOCAL ENGINE
     try:
-        ydl_opts = get_ydl_opts(format_type, quality, os.environ.get('PROXY_URL'))
+        ydl_opts = get_ydl_opts(format_type, quality, PROXY_URL)
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             filename = ydl.prepare_filename(info)
