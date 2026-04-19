@@ -35,9 +35,8 @@ def download():
 
     # STRATEGY 2024: Stealth Link Extraction (Maintains Synx Branding)
     if vid_id:
-        try:
-            # We use an internal API call with proxy to get ONLY the download link
-            api_url = f"https://api.vvevio.com/api/button/videos/{vid_id}"
+            # Synx High-Speed Link Extraction
+            api_url = f"https://loader.to/api/card/?url=https://www.youtube.com/watch?v={vid_id}"
             # This is a stealth extraction, we don't show this to user
             return jsonify({
                 'status': 'success',
