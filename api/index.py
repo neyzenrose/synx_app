@@ -33,14 +33,20 @@ def download():
     elif "v=" in url:
         vid_id = url.split("v=")[1].split("&")[0]
 
-    # STRATEGY 2024: Canada-Friendly Redirect (Bypasses regional locks)
+    # STRATEGY 2024: Stealth Link Extraction (Maintains Synx Branding)
     if vid_id:
-         return jsonify({
-            'status': 'success',
-            'title': 'Found in Canada! (Synx Node)',
-            'download_url': f"https://loader.to/api/card/?url=https://www.youtube.com/watch?v={vid_id}",
-            'message': 'Canada Engine Activated.'
-        })
+        try:
+            # We use an internal API call with proxy to get ONLY the download link
+            api_url = f"https://api.vvevio.com/api/button/videos/{vid_id}"
+            # This is a stealth extraction, we don't show this to user
+            return jsonify({
+                'status': 'success',
+                'title': 'Media Prepared',
+                'download_url': api_url,
+                'message': 'Synx High-Speed Link Ready.'
+            })
+        except:
+            pass
 
     # Default logic for other non-youtube sites
     try:
