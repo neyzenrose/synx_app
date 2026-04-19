@@ -76,12 +76,12 @@ def download():
     except Exception as e:
         # STAGE 2: CLUSTER BYPASS (Multiple fallback instances)
         if vid_id:
-            # Try SSYoutube (Extremely stable external bypass)
+            # 9XBuddy is extremely stable in North America/Europe
             return jsonify({
                 'status': 'success',
-                'title': 'Download Ready (Ultra Bypass)',
-                'download_url': f"https://www.ssyoutube.com/watch?v={vid_id}",
-                'message': 'Redirecting to secure download node...'
+                'title': 'Download Ready (Synx Ultra Bypass)',
+                'download_url': f"https://9xbuddy.com/process?url=https://www.youtube.com/watch?v={vid_id}",
+                'message': 'Redirecting to secure global node...'
             })
 
         # STAGE 3: COBALT FALLBACK
