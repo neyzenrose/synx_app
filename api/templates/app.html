@@ -134,8 +134,13 @@
                     status.innerText = 'Extraction Successful!';
                     status.style.color = '#10b981';
                     
+                    const fileName = (data.title || "Synx_Media") + ".mp4";
                     document.getElementById('title').innerText = data.title || "Your Media is Ready";
-                    document.getElementById('link').href = data.download_url;
+                    
+                    const lnk = document.getElementById('link');
+                    lnk.href = data.download_url;
+                    lnk.setAttribute('download', fileName);
+                    
                     result.style.display = 'block';
                     btn.innerText = 'Done!';
                 } else { throw new Error(data.message); }
