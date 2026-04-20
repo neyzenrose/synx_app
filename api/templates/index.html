@@ -554,11 +554,14 @@
     </footer>
 
     <script>
-        // Smooth scrolling for anchor links
+        // Smooth scrolling for anchor links (Safe version)
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href === '#') return; // Skip empty anchors to avoid pattern errors
+                
                 e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
+                const target = document.querySelector(href);
                 if (target) {
                     target.scrollIntoView({
                         behavior: 'smooth'
