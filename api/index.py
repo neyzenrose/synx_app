@@ -26,11 +26,12 @@ def download():
         return jsonify({"error": "No URL provided"}), 400
     
     try:
-        # Improved payload for Cobalt 10+
+        # Precise payload for Cobalt 11
         payload = {
             "url": url,
-            "vQuality": "1080",
-            "isAudioOnly": True if req_format in ['mp3', 'm4a', 'wav'] else False,
+            "videoQuality": "1080",
+            "audioFormat": "mp3",
+            "downloadMode": "audio" if req_format in ['mp3', 'm4a', 'wav'] else "auto",
             "filenameStyle": "pretty"
         }
         
