@@ -1,51 +1,47 @@
 import os
+import urllib.parse
 from flask import Flask, render_template, request, jsonify, Response
 import requests
-import urllib.parse
 
 app = Flask(__name__)
 
 # ENGINE ENDPOINTS
 LOCAL_COBALT = "http://127.0.0.1:3000"
 FALLBACK_1 = "https://api.cobalt.tools"
-FALLBACK_2 = "https://cobalt.api.unblocker.xyz" # Additional alternative
+FALLBACK_2 = "https://cobalt.api.unblocker.xyz"
 
 @app.route('/')
-def index(): return render_template('index.html')
+def index():
+    return render_template('index.html')
 
 @app.route('/app')
 @app.route('/app.html')
-def app_page(): return render_template('app.html')
+def app_page():
+    return render_template('app.html')
 
 @app.route('/api/download', methods=['POST'])
 def download():
     data = request.json
     url = data.get('url')
     req_format = data.get('format', 'mp4')
-    
     if not url: return jsonify({"error": "No URL"}), 400
     
-    # Try multiple powerful engines in sequence
     endpoints = [LOCAL_COBALT, FALLBACK_1, FALLBACK_2]
-    
     for api in endpoints:
         try:
             return process_with_engine(url, req_format, api)
         except Exception as e:
             print(f"Engine {api} failed: {e}")
             continue
-
-    return jsonify({"status": "error", "message": "YouTube security is temporarily high. Please try a different video or wait a few minutes."}), 500
+    return jsonify({"status": "error", "message": "YouTube security block. Try again in minutes."}), 500
 
 def process_with_engine(url, req_format, api_endpoint):
     payload = {
         "url": url,
         "videoQuality": "1080",
         "audioFormat": "mp3",
-        "downloadMode": "audio" if req_format in ['mp3', 'm4a', 'wav'] else "auto",
-        "filenameStyle": "pretty"
+        "downloadMode": "audio" if req_format in ['mp3', 'm4a', 'wav'] else "auto"
     }
-    
     headers = {
         "Accept": "application/json",
         "Content-Type": "application/json",
@@ -53,32 +49,17 @@ def process_with_engine(url, req_format, api_endpoint):
         "Origin": "https://cobalt.tools",
         "Referer": "https://cobalt.tools/"
     }
-    
-    # Increase timeout to give engines time to bypass bot detection
-    response = requests.post(api_endpoint, json=payload, headers=headers, timeout=45)
-    
-    if response.status_code != 200:
-        raise Exception(f"Status {response.status_code}")
-
+    response = requests.post(api_endpoint, json=payload, headers=headers, timeout=40)
+    if response.status_code != 200: raise Exception("Status error")
     result = response.json()
-    if result.get('status') == 'error':
-        raise Exception(result.get('text'))
-        
+    if result.get('status') == 'error': raise Exception(result.get('text'))
     if result.get('url'):
-        direct_url = result.get('url')
-        filename = f"synx_media.{req_format}"
-        
-        # Use standard urllib quote for better compatibility
-        safe_url = urllib.parse.quote(direct_url)
-        safe_filename = urllib.parse.quote(filename)
-        proxy_url = f"/api/proxy?url={safe_url}&filename={safe_filename}"
-        
-        # Direct proxy stream through our host to provide independent "Save As"
+        s_url = urllib.parse.quote(result.get('url'))
+        s_file = urllib.parse.quote(f"synx_media.{req_format}")
         return jsonify({
             'status': 'success',
             'title': 'Media Ready',
-            'download_url': proxy_url,
-            'message': 'Synx Ultra-Engine'
+            'download_url': f"/api/proxy?url={s_url}&filename={s_file}"
         })
     raise Exception("No URL")
 
