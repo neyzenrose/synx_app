@@ -8,9 +8,6 @@ app = Flask(__name__)
 # SYX Independent Proxy Engine
 PROXY_URL = "http://8pqu8nrvp4760s8:pndg6nphvup6nd9@p.webshare.io:80"
 
-# SYX Independent Proxy Engine
-PROXY_URL = "http://8pqu8nrvp4760s8:pndg6nphvup6nd9@p.webshare.io:80"
-
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -30,64 +27,71 @@ def download():
     if not url:
         return jsonify({"error": "No URL provided"}), 400
     
+    # Try with Proxy first, then fallback to Direct
     try:
-        # VPS optimized format selection
-        if req_quality == 'best':
-            format_str = f'bestvideo[ext={req_format}]+bestaudio/best'
-        elif req_format in ['mp3', 'm4a', 'wav']:
-            format_str = 'bestaudio/best'
-        else:
-            format_str = f'bestvideo[height<={req_quality}][ext={req_format}]+bestaudio/best/best'
-
-        ydl_opts = {
-            'proxy': PROXY_URL,
-            'quiet': True,
-            'format': format_str,
-            'skip_download': True,
-            'nocheckcertificate': True
-        }
-        
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=False)
-            formats = info.get('formats', [])
-            
-            # Find the direct link
-            direct_url = info.get('url')
-            if not direct_url:
-                for f in reversed(formats):
-                    if f.get('url'):
-                        direct_url = f.get('url')
-                        break
-
-            if direct_url:
-                # Independent Proxy: No more redirects to 3rd party sites!
-                filename = f"synx_{info.get('id', 'video')}.{req_format}"
-                proxy_url = f"/api/proxy?url={requests.utils.quote(direct_url)}&filename={requests.utils.quote(filename)}"
-                
-                return jsonify({
-                    'status': 'success',
-                    'title': info.get('title', 'Video Ready'),
-                    'download_url': proxy_url,
-                    'message': f'Synx High-Speed Proxy: {req_quality}p'
-                })
-            else:
-                raise Exception("Could not extract media link.")
-
+        return process_request(url, req_format, req_quality, use_proxy=True)
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        print(f"Proxy failed, falling back to direct: {e}")
+        try:
+            return process_request(url, req_format, req_quality, use_proxy=False)
+        except Exception as e2:
+            return jsonify({"status": "error", "message": str(e2)}), 500
+
+def process_request(url, req_format, req_quality, use_proxy=True):
+    # VPS optimized format selection
+    if req_quality == 'best':
+        format_str = f'bestvideo[ext={req_format}]+bestaudio/best'
+    elif req_format in ['mp3', 'm4a', 'wav']:
+        format_str = 'bestaudio/best'
+    else:
+        format_str = f'bestvideo[height<={req_quality}][ext={req_format}]+bestaudio/best/best'
+
+    ydl_opts = {
+        'quiet': True,
+        'format': format_str,
+        'skip_download': True,
+        'nocheckcertificate': True
+    }
+    
+    if use_proxy:
+        ydl_opts['proxy'] = PROXY_URL
+    
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=False)
+        formats = info.get('formats', [])
+        
+        direct_url = info.get('url')
+        if not direct_url:
+            for f in reversed(formats):
+                if f.get('url'):
+                    direct_url = f.get('url')
+                    break
+
+        if direct_url:
+            filename = f"synx_{info.get('id', 'video')}.{req_format}"
+            proxy_url = f"/api/proxy?url={requests.utils.quote(direct_url)}&filename={requests.utils.quote(filename)}&use_proxy={'1' if use_proxy else '0'}"
+            
+            return jsonify({
+                'status': 'success',
+                'title': info.get('title', 'Video Ready'),
+                'download_url': proxy_url,
+                'message': f'Synx High-Speed ({ "Proxy" if use_proxy else "Direct" }): {req_quality}p'
+            })
+        else:
+            raise Exception("Could not extract media link.")
 
 @app.route('/api/proxy')
 def proxy():
-    # Force 'Save As' by streaming through our independent server
     target_url = request.args.get('url')
     filename = request.args.get('filename', 'video.mp4')
+    use_proxy = request.args.get('use_proxy') == '1'
     
     if not target_url:
         return "No direct link provided", 400
     
     try:
-        # Yetkilendirilmiş proxy üzerinden akıtıyoruz
-        req = requests.get(target_url, stream=True, proxies={'http': PROXY_URL, 'https': PROXY_URL}, timeout=60)
+        proxy_opts = {'http': PROXY_URL, 'https': PROXY_URL} if use_proxy else None
+        req = requests.get(target_url, stream=True, proxies=proxy_opts, timeout=120)
         
         def generate():
             for chunk in req.iter_content(chunk_size=1024*1024):
