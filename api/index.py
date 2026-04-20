@@ -37,7 +37,6 @@ def download():
             format_str = f'bestvideo[height<={req_quality}][ext={req_format}]+bestaudio/best/best'
 
         ydl_opts = {
-            'proxy': PROXY_URL,
             'quiet': True,
             'format': format_str,
             'skip_download': True,
@@ -65,7 +64,7 @@ def download():
                     'status': 'success',
                     'title': info.get('title', 'Video Ready'),
                     'download_url': proxy_url,
-                    'message': f'Synx High-Speed Proxy: {req_quality}p'
+                    'message': f'Synx High-Speed Direct: {req_quality}p'
                 })
             else:
                 raise Exception("Could not extract media link.")
@@ -83,7 +82,8 @@ def proxy():
         return "No direct link provided", 400
     
     try:
-        req = requests.get(target_url, stream=True, proxies={'http': PROXY_URL, 'https': PROXY_URL}, timeout=60)
+        # Sunucunun kendi internetini kullanarak indiriyoruz
+        req = requests.get(target_url, stream=True, timeout=60)
         
         def generate():
             for chunk in req.iter_content(chunk_size=1024*1024):
