@@ -1,18 +1,21 @@
 import os
 import urllib.parse
-from flask import Flask, render_template, request, jsonify, Response
+from flask import Flask, render_template, request, jsonify, Response, send_file
 import requests
+import time
+
+# TRY TO IMPORT THE NEW ENGINE
+try:
+    from pytubefix import YouTube
+    PYTUBE_AVAILABLE = True
+except ImportError:
+    PYTUBE_AVAILABLE = False
 
 app = Flask(__name__)
 
-# BULLETPROOF ULTIMATE ENGINE LIST
-ENDPOINTS = [
-    "https://cobalt.moe/api/json",
-    "https://api.cobalt.tools",
-    "https://cobalt.api.unblocker.xyz",
-    "https://v1.cobalt.sh",
-    "https://api.v2.cobalt.tools"
-]
+# ROBUST PROXY CONFIG
+PROXY_URL = "http://8pqu8nrvp4760s8:pndg6nphvup6nd9@p.webshare.io:80"
+PROXIES = {"http": PROXY_URL, "https": PROXY_URL}
 
 @app.route('/')
 def index(): return render_template('index.html')
@@ -27,59 +30,69 @@ def app_page(): return render_template('ultra.html')
 def download():
     try:
         data = request.json
-        url = data.get('url', '').split()[0] # Auto-sanitize just in case
+        url = data.get('url', '').split()[0]
         req_format = data.get('format', 'mp4')
         if not url: return jsonify({"status":"error","message":"No URL"}), 400
 
+        # --- STRATEGY 1: TRY PYTUBEFIX (THE MASTER KEY) ---
+        if PYTUBE_AVAILABLE and "youtube.com" in url or "youtu.be" in url:
+            try:
+                print(f"DEBUG: Attempting PytubeFix for {url}")
+                yt = YouTube(url, proxies=PROXIES)
+                
+                if req_format in ['mp3', 'm4a', 'wav']:
+                    stream = yt.streams.get_audio_only()
+                else:
+                    stream = yt.streams.get_highest_resolution()
+                
+                # We can't stream directly easily, so we get the direct URL if possible
+                # Or we use a public mirror as fallback
+                video_url = stream.url
+                if video_url:
+                    base_url = request.url_root.rstrip('/')
+                    s_url = urllib.parse.quote(video_url)
+                    s_file = urllib.parse.quote(f"synx_media.{req_format}")
+                    return jsonify({
+                        'status': 'success',
+                        'title': yt.title,
+                        'download_url': f"{base_url}/api/proxy?url={s_url}&filename={s_file}"
+                    })
+            except Exception as pe:
+                print(f"DEBUG: PytubeFix failed -> {str(pe)}")
+
+        # --- STRATEGY 2: TRY PUBLIC COBALT ENGINES ---
+        ENDPOINTS = ["https://cobalt.moe/api/json", "https://api.cobalt.tools", "https://cobalt.api.unblocker.xyz"]
         for api in ENDPOINTS:
             try:
-                # Latest Cobalt API V2/V3 compatibility
-                payload = {
-                    "url": url,
-                    "videoQuality": "720",
-                    "audioFormat": "mp3",
-                    "filenameStyle": "pretty",
-                    "downloadMode": "audio" if req_format in ['mp3', 'm4a', 'wav'] else "video"
-                }
-                headers = {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-                    "Origin": "https://cobalt.tools",
-                    "Referer": "https://cobalt.tools/"
-                }
-                
-                resp = requests.post(api, json=payload, headers=headers, timeout=15)
+                payload = {"url": url, "videoQuality": "720", "downloadMode": "audio" if req_format in ['mp3', 'm4a'] else "video"}
+                resp = requests.post(api, json=payload, timeout=10)
                 if resp.status_code == 200:
-                    result = resp.json()
-                    if result.get('url'):
+                    res_json = resp.json()
+                    if res_json.get('url'):
                         base_url = request.url_root.rstrip('/')
-                        s_url = urllib.parse.quote(result.get('url'))
+                        s_url = urllib.parse.quote(res_json.get('url'))
                         s_file = urllib.parse.quote(f"synx_media.{req_format}")
-                        return jsonify({
-                            'status': 'success',
-                            'title': 'Download Ready',
-                            'download_url': f"{base_url}/api/proxy?url={s_url}&filename={s_file}"
-                        })
+                        return jsonify({'status': 'success','title': 'Download Ready','download_url': f"{base_url}/api/proxy?url={s_url}&filename={s_file}"})
             except: continue
 
-        return jsonify({"status": "error", "message": "Server temporarily overloaded. Try with another link or wait 2 mins."}), 503
+        return jsonify({"status": "error", "message": "YouTube security is unbeatable tonight. Try Instagram/TikTok or wait."}), 503
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/api/proxy')
 def proxy():
-    t_url = request.args.get('url')
-    f_name = request.args.get('filename', 'video.mp4')
-    if not t_url: return "No URL", 400
+    target_url = request.args.get('url')
+    filename = request.args.get('filename', 'video.mp4')
+    if not target_url: return "No URL", 400
     try:
-        r = requests.get(t_url, stream=True, timeout=120)
-        def gen():
-            for c in r.iter_content(chunk_size=65536):
-                if c: yield c
-        res = Response(gen(), content_type=r.headers.get('content-type'))
-        res.headers['Content-Disposition'] = f'attachment; filename="{f_name}"'
-        return res
+        req = requests.get(target_url, stream=True, timeout=300, proxies=PROXIES)
+        def generate():
+            for chunk in req.iter_content(chunk_size=131072):
+                if chunk: yield chunk
+        response = Response(generate(), content_type=req.headers.get('content-type'))
+        response.headers['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
     except: return "Proxy Error", 500
 
-if __name__ == '__main__': app.run()
+if __name__ == '__main__':
+    app.run()
