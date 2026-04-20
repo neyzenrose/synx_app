@@ -5,7 +5,7 @@ import requests
 app = Flask(__name__)
 
 # COBALT EXTERNAL ENGINE (Independent & Powerful)
-COBALT_API = "http://localhost:3000"
+COBALT_API = "http://127.0.0.1:3000"
 
 @app.route('/')
 def index():
