@@ -1,5 +1,5 @@
-flask
-yt-dlp
+Flask
 flask-cors
-static-ffmpeg
+yt-dlp
 requests
+gunicorn
