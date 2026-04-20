@@ -4,7 +4,7 @@ import requests
 
 app = Flask(__name__)
 
-# COBALT EXTERNAL ENGINE (Independent & Powerful)
+# LOCAL ENGINE
 COBALT_API = "http://127.0.0.1:3000"
 
 @app.route('/')
@@ -25,54 +25,57 @@ def download():
     if not url:
         return jsonify({"error": "No URL provided"}), 400
     
+    # Strategy 1: Local Cobalt (Fastest)
     try:
-        # Precise payload for Cobalt 11
-        payload = {
-            "url": url,
-            "videoQuality": "1080",
-            "audioFormat": "mp3",
-            "downloadMode": "audio" if req_format in ['mp3', 'm4a', 'wav'] else "auto",
-            "filenameStyle": "pretty"
-        }
-        
-        headers = {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        }
-        
-        print(f"DEBUG: Connecting to Cobalt at {COBALT_API} with URL {url}")
-        
-        # INCREASE TIMEOUT for server-side processing
-        response = requests.post(COBALT_API, json=payload, headers=headers, timeout=60)
-        
-        # DEBUG LOGGING
-        print(f"DEBUG: Cobalt Status Body: {response.text}")
-        
-        if response.status_code != 200:
-            return jsonify({"status": "error", "message": f"Engine Status {response.status_code}: {response.text[:100]}"}), 500
-
-        result = response.json()
-        
-        if result.get('status') == 'error':
-            return jsonify({"status": "error", "message": f"Engine Error: {result.get('text', 'Unknown')}"}), 500
-            
-        if result.get('url'):
-            direct_url = result.get('url')
-            filename = f"synx_download.{req_format}"
-            proxy_url = f"/api/proxy?url={requests.utils.quote(direct_url)}&filename={requests.utils.quote(filename)}"
-            
-            return jsonify({
-                'status': 'success',
-                'title': 'Media Ready',
-                'download_url': proxy_url,
-                'message': 'Synx Engine: Ready'
-            })
-        else:
-            return jsonify({"status": "error", "message": f"Engine Response: {str(result)[:100]}"}), 500
-            
+        return process_with_cobalt(url, req_format, COBALT_API)
     except Exception as e:
-        print(f"CRITICAL ERROR: {e}")
-        return jsonify({"status": "error", "message": f"System Error: {str(e)}"}), 500
+        print(f"Local Cobalt failed: {e}")
+        
+    # Strategy 2: Global Fallback (Reliable)
+    # If our server is blocked, we use an external trusted extractor
+    try:
+        # Using a reliable public extraction helper
+        external_api = "https://api.cobalt.tools" 
+        return process_with_cobalt(url, req_format, external_api)
+    except Exception as e:
+        print(f"Global Fallback failed: {e}")
+
+    return jsonify({"status": "error", "message": "All extraction methods failed. YouTube is being extremely difficult today. Please try again later."}), 500
+
+def process_with_cobalt(url, req_format, api_endpoint):
+    payload = {
+        "url": url,
+        "videoQuality": "1080",
+        "audioFormat": "mp3",
+        "downloadMode": "audio" if req_format in ['mp3', 'm4a', 'wav'] else "auto",
+        "filenameStyle": "pretty"
+    }
+    
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+    }
+    
+    response = requests.post(api_endpoint, json=payload, headers=headers, timeout=30)
+    result = response.json()
+    
+    if result.get('status') == 'error':
+        raise Exception(result.get('text', 'API Error'))
+        
+    if result.get('url'):
+        direct_url = result.get('url')
+        filename = f"synx_download.{req_format}"
+        # Still using our local proxy to hide the source and force download
+        proxy_url = f"/api/proxy?url={requests.utils.quote(direct_url)}&filename={requests.utils.quote(filename)}"
+        
+        return jsonify({
+            'status': 'success',
+            'title': 'Media Ready',
+            'download_url': proxy_url,
+            'message': 'Synx Smart-Engine Active'
+        })
+    else:
+        raise Exception("No URL in response")
 
 @app.route('/api/proxy')
 def proxy():
@@ -81,6 +84,7 @@ def proxy():
     if not target_url: return "No URL", 400
     
     try:
+        # Stream through our VPS to provide clean "Save As" experience
         req = requests.get(target_url, stream=True, timeout=180)
         def generate():
             for chunk in req.iter_content(chunk_size=1024*1024):
