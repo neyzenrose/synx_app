@@ -395,73 +395,78 @@
         });
 
         function startDownload() {
-            const url = document.getElementById('urlInput').value;
-            if (!url) {
-                alert('Please paste a valid URL first.');
-                return;
-            }
-
-            const format = document.getElementById('formatSelect').value;
-            const quality = document.getElementById('qualitySelect').value;
-            const btnText = document.getElementById('btnText');
-            const btnSpinner = document.getElementById('btnSpinner');
-            const downloadBtn = document.getElementById('downloadBtn');
-            const statusContainer = document.getElementById('statusContainer');
-            const progressBar = document.getElementById('progressBar');
-            const progressPct = document.getElementById('progressPct');
-            const statusText = document.getElementById('statusText');
-            const detailsRow = document.getElementById('detailsRow');
-            const videoTitle = document.getElementById('videoTitle');
-            const videoSize = document.getElementById('videoSize');
-
-            const API_URL = '/api/download'; 
-
-            downloadBtn.disabled = true;
-            btnText.textContent = 'Processing...';
-            btnSpinner.style.display = 'block';
-            statusContainer.style.display = 'block';
-            progressBar.style.width = '10%';
-            progressPct.textContent = '10%';
-            statusText.textContent = 'Connecting to media engine...';
-
-            fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url, format, quality })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    progressBar.style.width = '100%';
-                    progressPct.textContent = '100%';
-                    statusText.textContent = 'Ready for pickup!';
-                    btnText.textContent = 'Download Ready';
-                    
-                    detailsRow.style.display = 'flex';
-                    videoTitle.textContent = data.title || 'Media Ready';
-                    videoSize.textContent = "Format: " + format.toUpperCase();
-                    
-                    // Show a real button as fallback for browser restrictions
-                    statusText.innerHTML = `<a href="${data.download_url}" style="color:#06b6d4; text-decoration:underline; font-weight:700;">DOWNLOAD READY! CLICK HERE IF IT DOESN'T START</a>`;
-                    
-                    console.log("Download URL:", data.download_url);
-
-                    const link = document.createElement('a');
-                    link.href = data.download_url;
-                    link.setAttribute('download', '');
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                } else {
-                    throw new Error(data.message || 'Download failed');
+            try {
+                const url = document.getElementById('urlInput').value;
+                if (!url) {
+                    alert('Please paste a valid URL first.');
+                    return;
                 }
-            })
-            .catch(err => {
-                statusText.textContent = 'Error: ' + err.message;
-                btnText.textContent = 'Try Again';
-                downloadBtn.disabled = false;
-                btnSpinner.style.display = 'none';
-            });
+
+                const format = document.getElementById('formatSelect').value;
+                const quality = document.getElementById('qualitySelect').value;
+                const btnText = document.getElementById('btnText');
+                const btnSpinner = document.getElementById('btnSpinner');
+                const downloadBtn = document.getElementById('downloadBtn');
+                const statusContainer = document.getElementById('statusContainer');
+                const progressBar = document.getElementById('progressBar');
+                const progressPct = document.getElementById('progressPct');
+                const statusText = document.getElementById('statusText');
+                const detailsRow = document.getElementById('detailsRow');
+                const videoTitle = document.getElementById('videoTitle');
+                const videoSize = document.getElementById('videoSize');
+
+                const API_URL = '/api/download'; 
+
+                downloadBtn.disabled = true;
+                btnText.textContent = 'Processing...';
+                btnSpinner.style.display = 'block';
+                statusContainer.style.display = 'block';
+                progressBar.style.width = '10%';
+                progressPct.textContent = '10%';
+                statusText.textContent = 'Connecting to media engine...';
+
+                console.log("DEBUG: Fetching from API...");
+
+                fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, format, quality })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    console.log("DEBUG: API Response:", data);
+                    if (data.status === 'success') {
+                        progressBar.style.width = '100%';
+                        progressPct.textContent = '100%';
+                        statusText.innerHTML = `<a href="${data.download_url}" style="color:#06b6d4; text-decoration:underline; font-weight:700;">DOWNLOAD READY! CLICK HERE</a>`;
+                        btnText.textContent = 'Download Ready';
+                        
+                        detailsRow.style.display = 'flex';
+                        videoTitle.textContent = data.title || 'Media Ready';
+                        videoSize.textContent = "Format: " + format.toUpperCase();
+                        
+                        const link = document.createElement('a');
+                        link.href = data.download_url;
+                        link.setAttribute('download', '');
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } else {
+                        throw new Error(data.message || 'Download failed');
+                    }
+                })
+                .catch(err => {
+                    console.error("DEBUG: Fetch Error:", err);
+                    statusText.textContent = 'Error: ' + err.message;
+                    btnText.textContent = 'Try Again';
+                    downloadBtn.disabled = false;
+                    btnSpinner.style.display = 'none';
+                    alert("Operation Error: " + err.message + "\nCheck console for details.");
+                });
+            } catch (globalErr) {
+                console.error("DEBUG: Global Logic Error:", globalErr);
+                alert("Critical System Error: " + globalErr.message);
+            }
         }
     </script>
 </body>
