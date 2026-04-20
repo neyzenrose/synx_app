@@ -36,7 +36,9 @@ def download():
         
         headers = {
             "Accept": "application/json",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Origin": COBALT_API,
+            "Referer": COBALT_API + "/"
         }
         
         print(f"Requesting Cobalt: {url}")
