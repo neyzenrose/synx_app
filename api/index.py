@@ -51,6 +51,7 @@ def process_request(url, req_format, req_quality, use_proxy=True):
         'format': format_str,
         'skip_download': True,
         'nocheckcertificate': True,
+        'cookiefile': 'cookies.txt',
         'extractor_args': {
             'youtube': {
                 'player_client': ['ios', 'android'],
