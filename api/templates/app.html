@@ -438,10 +438,14 @@
                     btnText.textContent = 'Download Ready';
                     
                     detailsRow.style.display = 'flex';
-                    videoTitle.textContent = data.title;
+                    videoTitle.textContent = data.title || 'Media Ready';
                     videoSize.textContent = "Format: " + format.toUpperCase();
                     
-                    // Create a hidden link and click it to force download and avoid "pattern" errors
+                    // Show a real button as fallback for browser restrictions
+                    statusText.innerHTML = `<a href="${data.download_url}" style="color:#06b6d4; text-decoration:underline; font-weight:700;">DOWNLOAD READY! CLICK HERE IF IT DOESN'T START</a>`;
+                    
+                    console.log("Download URL:", data.download_url);
+
                     const link = document.createElement('a');
                     link.href = data.download_url;
                     link.setAttribute('download', '');
