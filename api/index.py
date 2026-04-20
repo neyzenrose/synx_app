@@ -54,12 +54,16 @@ def process_with_engine(url, req_format, api_endpoint):
     result = response.json()
     if result.get('status') == 'error': raise Exception(result.get('text'))
     if result.get('url'):
+        # Force Full URL for browser compatibility
+        base_url = request.url_root.rstrip('/')
         s_url = urllib.parse.quote(result.get('url'))
         s_file = urllib.parse.quote(f"synx_media.{req_format}")
+        final_download_url = f"{base_url}/api/proxy?url={s_url}&filename={s_file}"
+        
         return jsonify({
             'status': 'success',
             'title': 'Media Ready',
-            'download_url': f"/api/proxy?url={s_url}&filename={s_file}"
+            'download_url': final_download_url
         })
     raise Exception("No URL")
 
@@ -79,4 +83,4 @@ def proxy():
     except Exception as e: return str(e), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()

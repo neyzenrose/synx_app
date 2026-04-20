@@ -415,57 +415,66 @@
                 const videoTitle = document.getElementById('videoTitle');
                 const videoSize = document.getElementById('videoSize');
 
-                const API_URL = '/api/download'; 
+                const API_URL = window.location.origin + '/api/download'; 
 
                 downloadBtn.disabled = true;
                 btnText.textContent = 'Processing...';
                 btnSpinner.style.display = 'block';
                 statusContainer.style.display = 'block';
-                progressBar.style.width = '10%';
-                progressPct.textContent = '10%';
-                statusText.textContent = 'Connecting to media engine...';
+                progressBar.style.width = '20%';
+                progressPct.textContent = '20%';
+                statusText.textContent = 'Contacting Synx Ultra-Engine...';
 
-                console.log("DEBUG: Fetching from API...");
-
-                fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url, format, quality })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    console.log("DEBUG: API Response:", data);
-                    if (data.status === 'success') {
-                        progressBar.style.width = '100%';
-                        progressPct.textContent = '100%';
-                        statusText.innerHTML = `<a href="${data.download_url}" style="color:#06b6d4; text-decoration:underline; font-weight:700;">DOWNLOAD READY! CLICK HERE</a>`;
-                        btnText.textContent = 'Download Ready';
+                // Use robust XMLHttpRequest to bypass Fetch API pattern bugs
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", API_URL, true);
+                xhr.setRequestHeader("Content-Type", "application/json");
+                
+                xhr.onload = function() {
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+                        console.log("DEBUG: Response", data);
                         
-                        detailsRow.style.display = 'flex';
-                        videoTitle.textContent = data.title || 'Media Ready';
-                        videoSize.textContent = "Format: " + format.toUpperCase();
-                        
-                        const link = document.createElement('a');
-                        link.href = data.download_url;
-                        link.setAttribute('download', '');
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                    } else {
-                        throw new Error(data.message || 'Download failed');
+                        if (xhr.status === 200 && data.status === 'success') {
+                            progressBar.style.width = '100%';
+                            progressPct.textContent = '100%';
+                            statusText.innerHTML = `<a href="${data.download_url}" style="color:#06b6d4; text-decoration:underline; font-weight:700;">DOWNLOAD READY! CLICK HERE</a>`;
+                            btnText.textContent = 'Download Ready';
+                            
+                            detailsRow.style.display = 'flex';
+                            videoTitle.textContent = data.title || 'Media Ready';
+                            videoSize.textContent = "Format: " + format.toUpperCase();
+                            
+                            const link = document.createElement('a');
+                            link.href = data.download_url;
+                            link.setAttribute('download', '');
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        } else {
+                            throw new Error(data.message || 'Server error');
+                        }
+                    } catch (e) {
+                        handleError(e.message || "Invalid server response");
                     }
-                })
-                .catch(err => {
-                    console.error("DEBUG: Fetch Error:", err);
-                    statusText.textContent = 'Error: ' + err.message;
+                };
+
+                xhr.onerror = function() {
+                    handleError("Network connection failed");
+                };
+
+                function handleError(msg) {
+                    statusText.textContent = 'Error: ' + msg;
                     btnText.textContent = 'Try Again';
                     downloadBtn.disabled = false;
                     btnSpinner.style.display = 'none';
-                    alert("Operation Error: " + err.message + "\nCheck console for details.");
-                });
+                    alert("Engine Error: " + msg);
+                }
+
+                xhr.send(JSON.stringify({ url: url, format: format, quality: quality }));
+
             } catch (globalErr) {
-                console.error("DEBUG: Global Logic Error:", globalErr);
-                alert("Critical System Error: " + globalErr.message);
+                alert("Interface Error: " + globalErr.message);
             }
         }
     </script>
