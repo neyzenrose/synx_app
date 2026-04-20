@@ -16,8 +16,10 @@ def index():
 
 @app.route('/app')
 @app.route('/app.html')
+@app.route('/ultra')
+@app.route('/ultra.html')
 def app_page():
-    return render_template('app.html')
+    return render_template('ultra.html')
 
 @app.route('/api/download', methods=['POST'])
 def download():
