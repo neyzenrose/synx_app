@@ -432,6 +432,7 @@
                 
                 xhr.onload = function() {
                     try {
+                        console.log("DEBUG: Raw Response", xhr.responseText);
                         const data = JSON.parse(xhr.responseText);
                         console.log("DEBUG: Response", data);
                         
