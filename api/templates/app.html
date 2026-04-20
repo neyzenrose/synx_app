@@ -441,7 +441,13 @@
                     videoTitle.textContent = data.title;
                     videoSize.textContent = "Format: " + format.toUpperCase();
                     
-                    window.location.href = data.download_url;
+                    // Create a hidden link and click it to force download and avoid "pattern" errors
+                    const link = document.createElement('a');
+                    link.href = data.download_url;
+                    link.setAttribute('download', '');
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
                 } else {
                     throw new Error(data.message || 'Download failed');
                 }

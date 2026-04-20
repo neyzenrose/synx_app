@@ -1,6 +1,7 @@
 import os
 from flask import Flask, render_template, request, jsonify, Response
 import requests
+import urllib.parse
 
 app = Flask(__name__)
 
@@ -66,11 +67,17 @@ def process_with_engine(url, req_format, api_endpoint):
     if result.get('url'):
         direct_url = result.get('url')
         filename = f"synx_media.{req_format}"
+        
+        # Use standard urllib quote for better compatibility
+        safe_url = urllib.parse.quote(direct_url)
+        safe_filename = urllib.parse.quote(filename)
+        proxy_url = f"/api/proxy?url={safe_url}&filename={safe_filename}"
+        
         # Direct proxy stream through our host to provide independent "Save As"
         return jsonify({
             'status': 'success',
             'title': 'Media Ready',
-            'download_url': f"/api/proxy?url={requests.utils.quote(direct_url)}&filename={requests.utils.quote(filename)}",
+            'download_url': proxy_url,
             'message': 'Synx Ultra-Engine'
         })
     raise Exception("No URL")
