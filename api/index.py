@@ -46,7 +46,8 @@ def download():
 
         for api in ENDPOINTS:
             try:
-                resp = requests.post(api, json=payload, headers=headers, timeout=12)
+                # Force proxy even for Cobalt to see if it helps escape IP ban
+                resp = requests.post(api, json=payload, headers=headers, timeout=12, proxies={"http": proxy_url, "https": proxy_url})
                 if resp.status_code == 200:
                     res_json = resp.json()
                     target_url = res_json.get('url')
