@@ -7,13 +7,17 @@ import json
 
 app = Flask(__name__)
 
-# UPDATED ENGINE LIST
+# EXPANDED STABLE ENGINE LIST - APRIL 2026
 ENDPOINTS = [
     "https://cobalt-api.meowing.de",
     "https://cobalt-backend.canine.tools",
     "https://capi.3kh0.net",
     "https://kityune.imput.net",
-    "https://nachos.imput.net"
+    "https://nachos.imput.net",
+    "https://sunny.imput.net",
+    "https://cobalt.perisic.io",
+    "https://cobalt-proxy.perisic.io",
+    "https://api.cobalt.best"
 ]
 
 @app.route('/')
@@ -31,7 +35,7 @@ def download():
         req_format = data.get('format', 'mp4')
         if not url: return jsonify({"status":"error","message":"No URL provided"}), 400
 
-        # STAGE 1: Try Cobalt Engines (Fastest)
+        # STAGE 1: Try Cobalt Engines (Expanded)
         payload = {
             "url": url,
             "videoQuality": "720",
@@ -42,7 +46,7 @@ def download():
 
         for api in ENDPOINTS:
             try:
-                resp = requests.post(api, json=payload, headers=headers, timeout=10)
+                resp = requests.post(api, json=payload, headers=headers, timeout=12)
                 if resp.status_code == 200:
                     res_json = resp.json()
                     target_url = res_json.get('url')
@@ -57,13 +61,19 @@ def download():
                         })
             except: continue
 
-        # STAGE 2: Master-Key Fallback (yt-dlp) with Cookies support
+        # STAGE 2: Master-Key Fallback (yt-dlp) with Cookies & Mobile Spoofing
         proxy_url = "http://8pqu8nrvp4760s8:pndg6nphvup6nd9@p.webshare.io:80"
         cookies_path = "/var/www/synx/api/cookies.txt"
+        ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
         
         for use_proxy in [True, False]:
             try:
-                cmd = ['yt-dlp', '-g', '-f', 'best[ext=mp4]/best', '--get-title', '--no-check-certificates', '--no-warnings', '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36']
+                cmd = [
+                    'yt-dlp', '-g', '-f', 'best[ext=mp4]/best', 
+                    '--get-title', '--no-check-certificates', 
+                    '--no-warnings', '--user-agent', ua,
+                    '--extractor-args', 'youtube:player_client=android,ios'
+                ]
                 if os.path.exists(cookies_path):
                     cmd.extend(['--cookies', cookies_path])
                 if use_proxy: cmd.extend(['--proxy', proxy_url])
@@ -98,7 +108,7 @@ def proxy():
         proxies = {"http": proxy_str, "https": proxy_str}
         
         try:
-            r = requests.get(t_url, stream=True, timeout=15, proxies=proxies)
+            r = requests.get(t_url, stream=True, timeout=18, proxies=proxies)
             r.raise_for_status()
             def gen():
                 for c in r.iter_content(chunk_size=256*1024):
