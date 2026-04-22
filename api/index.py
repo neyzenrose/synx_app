@@ -82,19 +82,28 @@ def download():
                 process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
                 stdout, stderr = process.communicate()
                 
-                lines = stdout.strip().split('\n')
-                if len(lines) >= 2:
-                    title, stream_url = lines[0], lines[-1]
-                    s_url = urllib.parse.quote(stream_url)
-                    return jsonify({
-                        'status': 'success',
-                        'title': title,
-                        'download_url': f"{request.url_root.rstrip('/')}/api/proxy?url={s_url}&filename={urllib.parse.quote(title)}.mp4",
-                        'direct_url': stream_url
-                    })
-            except: continue
+                if process.returncode == 0:
+                    lines = stdout.strip().split('\n')
+                    if len(lines) >= 2:
+                        title, stream_url = lines[0], lines[-1]
+                        return jsonify({
+                            'status': 'success',
+                            'title': title,
+                            'download_url': f"{request.url_root.rstrip('/')}/api/proxy?url={urllib.parse.quote(stream_url)}&filename={urllib.parse.quote(title)}.mp4",
+                            'direct_url': stream_url
+                        })
+                else:
+                    last_error = stderr.strip().split('\n')[-1] if stderr else "Unknown Engine Error"
+                    print(f"DEBUG: yt-dlp failed (proxy={use_proxy}): {last_error}")
+            except Exception as e:
+                last_error = str(e)
+                continue
 
-        return jsonify({"status": "error", "message": "Global limit reached for this specific link. Please try Instagram/TikTok or try again later."}), 503
+        return jsonify({
+            "status": "error", 
+            "message": "YouTube signature protected. Please try another link or wait 10 mins.",
+            "details": last_error
+        }), 503
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
