@@ -111,19 +111,33 @@ def download():
 @app.route('/api/proxy')
 def proxy():
     t_url = request.args.get('url')
-    f_name = request.args.get('filename', 'media.mp4')
+    f_name = request.args.get('filename', 'media')
     if not t_url: return "No URL", 400
+    
+    # Ensure extension
+    if not (f_name.endswith('.mp4') or f_name.endswith('.mp3')):
+        f_name += '.mp4'
+
     try:
         proxy_str = "http://8pqu8nrvp4760s8:pndg6nphvup6nd9@p.webshare.io:80"
         proxies = {"http": proxy_str, "https": proxy_str}
-        r = requests.get(t_url, stream=True, timeout=20, proxies=proxies)
-        r.raise_for_status()
+        
+        # Increased timeout and added browser-like headers to the proxy request
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Safari/537.36'}
+        r = requests.get(t_url, stream=True, timeout=30, proxies=proxies, headers=headers)
+        
         def gen():
-            for c in r.iter_content(chunk_size=256*1024):
+            for c in r.iter_content(chunk_size=512*1024):
                 if c: yield c
-        res = Response(gen(), content_type=r.headers.get('content-type'))
-        res.headers['Content-Disposition'] = f'attachment; filename="{f_name}"'
+        
+        res = Response(gen(), content_type=r.headers.get('content-type', 'application/octet-stream'))
+        # FORCE DOWNLOAD HEADERS
+        res.headers['Content-Disposition'] = f'attachment; filename="{urllib.parse.quote(f_name)}"; filename*=UTF-8\'\'{urllib.parse.quote(f_name)}'
+        res.headers['X-Content-Type-Options'] = 'nosniff'
         return res
-    except: return redirect(t_url)
+    except Exception as e:
+        print(f"Proxy Fail: {str(e)}")
+        # If proxy fails, try one last direct jump which might trigger browser download if lucky
+        return redirect(t_url)
 
 if __name__ == '__main__': app.run(host='0.0.0.0', port=5000)
