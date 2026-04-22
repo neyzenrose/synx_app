@@ -58,41 +58,31 @@ def download():
             except: continue
 
         # STAGE 2: Master-Key Fallback (yt-dlp)
-        # We use yt-dlp to get the direct stream link using our proxy
-        print(f"DEBUG: Falling back to Master-Key for {url}")
         proxy_url = "http://8pqu8nrvp4760s8:pndg6nphvup6nd9@p.webshare.io:80"
         
-        try:
-            # Command to get the best direct URL for video+audio
-            cmd = [
-                'yt-dlp', 
-                '--proxy', proxy_url,
-                '-g', # Get URL
-                '-f', 'best[ext=mp4]/best',
-                '--get-title',
-                url
-            ]
-            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            stdout, stderr = process.communicate()
-            
-            lines = stdout.strip().split('\n')
-            if len(lines) >= 2:
-                title = lines[0]
-                stream_url = lines[-1]
-                base_url = request.url_root.rstrip('/')
-                s_url = urllib.parse.quote(stream_url)
-                s_file = urllib.parse.quote(f"{title}.mp4")
+        # We try twice: once with proxy, once without
+        for use_proxy in [True, False]:
+            try:
+                cmd = ['yt-dlp', '-g', '-f', 'best[ext=mp4]/best', '--get-title', '--no-check-certificates', '--no-warnings', '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36']
+                if use_proxy: cmd.extend(['--proxy', proxy_url])
+                cmd.append(url)
                 
-                return jsonify({
-                    'status': 'success',
-                    'title': title,
-                    'download_url': f"{base_url}/api/proxy?url={s_url}&filename={s_file}",
-                    'direct_url': stream_url
-                })
-        except Exception as e:
-            print(f"DEBUG: Master-Key Failed: {e}")
+                process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                stdout, stderr = process.communicate()
+                
+                lines = stdout.strip().split('\n')
+                if len(lines) >= 2:
+                    title, stream_url = lines[0], lines[-1]
+                    s_url = urllib.parse.quote(stream_url)
+                    return jsonify({
+                        'status': 'success',
+                        'title': title,
+                        'download_url': f"{request.url_root.rstrip('/')}/api/proxy?url={s_url}&filename={urllib.parse.quote(title)}.mp4",
+                        'direct_url': stream_url
+                    })
+            except: continue
 
-        return jsonify({"status": "error", "message": "High traffic detected. Please try a different link or try again in 5 minutes."}), 503
+        return jsonify({"status": "error", "message": "Global limit reached for this specific link. Please try Instagram/TikTok or try again later."}), 503
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
