@@ -444,7 +444,10 @@
                         if (xhr.status === 200 && data.status === 'success') {
                             progressBar.style.width = '100%';
                             progressPct.textContent = '100%';
-                            statusText.innerHTML = `<a href="${data.download_url}" style="color:#06b6d4; text-decoration:underline; font-weight:700;">DOWNLOAD READY! CLICK HERE</a>`;
+                            statusText.innerHTML = `<div style="display:flex; flex-direction:column; gap:8px;">
+                                <a href="${data.download_url}" style="color:#06b6d4; text-decoration:underline; font-weight:700;">SERVER DOWNLOAD (READY)</a>
+                                <a href="${data.direct_url}" style="color:var(--text-secondary); font-size:11px; text-decoration:none;">Engine direct link (if server fails)</a>
+                            </div>`;
                             btnText.textContent = 'Download Ready';
                             
                             detailsRow.style.display = 'flex';
