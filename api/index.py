@@ -46,7 +46,7 @@ def download():
 
         for api in ENDPOINTS:
             try:
-                resp = requests.post(api, json=payload, headers=headers, timeout=15)
+                resp = requests.post(api, json=payload, headers=headers, timeout=12)
                 if resp.status_code == 200:
                     res_json = resp.json()
                     target_url = res_json.get('url')
@@ -63,39 +63,39 @@ def download():
                 last_error = f"Engine {api} timeout/fail: {str(e)}"
                 continue
 
-        # STAGE 2: Master-Key Fallback (yt-dlp) with iOS Bypass
+        # STAGE 2: Master-Key Fallback (yt-dlp) with TV/iOS Bypass
         proxy_url = "http://8pqu8nrvp4760s8:pndg6nphvup6nd9@p.webshare.io:80"
         cookies_path = "/var/www/synx/api/cookies.txt"
-        iphone_ua = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1"
         
-        for use_proxy in [True, False]:
+        for client in ['tv', 'ios', 'web_embedded']:
             try:
                 cmd = [
                     'yt-dlp', '-g', '-f', 'best[ext=mp4]/best', 
                     '--get-title', '--no-check-certificates', 
-                    '--user-agent', iphone_ua,
-                    '--extractor-args', 'youtube:player_client=ios,web_embedded'
+                    '--extractor-args', f'youtube:player_client={client};player_skip=configs,webpage'
                 ]
-                if os.path.exists(cookies_path):
-                    cmd.extend(['--cookies', cookies_path])
-                if use_proxy: cmd.extend(['--proxy', proxy_url])
-                cmd.append(url)
+                if os.path.exists(cookies_path): cmd.extend(['--cookies', cookies_path])
                 
-                process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-                stdout, stderr = process.communicate()
-                
-                if process.returncode == 0:
-                    lines = stdout.strip().split('\n')
-                    if len(lines) >= 2:
-                        title, stream_url = lines[0], lines[-1]
-                        return jsonify({
-                            'status': 'success',
-                            'title': title,
-                            'download_url': f"{request.url_root.rstrip('/')}/api/proxy?url={urllib.parse.quote(stream_url)}&filename={urllib.parse.quote(title)}.mp4",
-                            'direct_url': stream_url
-                        })
-                else:
-                    last_error = stderr.strip().split('\n')[-1] if stderr else "Local Extraction Failed"
+                for use_proxy in [True, False]:
+                    current_cmd = list(cmd)
+                    if use_proxy: current_cmd.extend(['--proxy', proxy_url])
+                    current_cmd.append(url)
+                    
+                    process = subprocess.Popen(current_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                    stdout, stderr = process.communicate()
+                    
+                    if process.returncode == 0:
+                        lines = stdout.strip().split('\n')
+                        if len(lines) >= 2:
+                            title, stream_url = lines[0], lines[-1]
+                            return jsonify({
+                                'status': 'success',
+                                'title': title,
+                                'download_url': f"{request.url_root.rstrip('/')}/api/proxy?url={urllib.parse.quote(stream_url)}&filename={urllib.parse.quote(title)}.mp4",
+                                'direct_url': stream_url
+                            })
+                    else:
+                        last_error = stderr.strip().split('\n')[-1] if stderr else "Local Extraction Failed"
             except Exception as e:
                 last_error = str(e)
                 continue
@@ -113,31 +113,19 @@ def proxy():
     t_url = request.args.get('url')
     f_name = request.args.get('filename', 'media')
     if not t_url: return "No URL", 400
-    
-    # Ensure extension
-    if not (f_name.endswith('.mp4') or f_name.endswith('.mp3')):
-        f_name += '.mp4'
-
+    if not (f_name.endswith('.mp4') or f_name.endswith('.mp3')): f_name += '.mp4'
     try:
         proxy_str = "http://8pqu8nrvp4760s8:pndg6nphvup6nd9@p.webshare.io:80"
         proxies = {"http": proxy_str, "https": proxy_str}
-        
-        # Increased timeout and added browser-like headers to the proxy request
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Safari/537.36'}
         r = requests.get(t_url, stream=True, timeout=30, proxies=proxies, headers=headers)
-        
         def gen():
             for c in r.iter_content(chunk_size=512*1024):
                 if c: yield c
-        
         res = Response(gen(), content_type=r.headers.get('content-type', 'application/octet-stream'))
-        # FORCE DOWNLOAD HEADERS
         res.headers['Content-Disposition'] = f'attachment; filename="{urllib.parse.quote(f_name)}"; filename*=UTF-8\'\'{urllib.parse.quote(f_name)}'
         res.headers['X-Content-Type-Options'] = 'nosniff'
         return res
-    except Exception as e:
-        print(f"Proxy Fail: {str(e)}")
-        # If proxy fails, try one last direct jump which might trigger browser download if lucky
-        return redirect(t_url)
+    except: return redirect(t_url)
 
 if __name__ == '__main__': app.run(host='0.0.0.0', port=5000)
