@@ -57,13 +57,15 @@ def download():
                         })
             except: continue
 
-        # STAGE 2: Master-Key Fallback (yt-dlp)
+        # STAGE 2: Master-Key Fallback (yt-dlp) with Cookies support
         proxy_url = "http://8pqu8nrvp4760s8:pndg6nphvup6nd9@p.webshare.io:80"
+        cookies_path = "/var/www/synx/api/cookies.txt"
         
-        # We try twice: once with proxy, once without
         for use_proxy in [True, False]:
             try:
                 cmd = ['yt-dlp', '-g', '-f', 'best[ext=mp4]/best', '--get-title', '--no-check-certificates', '--no-warnings', '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36']
+                if os.path.exists(cookies_path):
+                    cmd.extend(['--cookies', cookies_path])
                 if use_proxy: cmd.extend(['--proxy', proxy_url])
                 cmd.append(url)
                 
