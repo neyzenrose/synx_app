@@ -397,12 +397,9 @@
         function startDownload() {
             try {
                 let rawUrl = document.getElementById('urlInput').value.trim();
-                
-                // CRITICAL: Clean up URL if user pasted commands or extra text
-                // Take only the first continuous string (the actual URL)
                 const url = rawUrl.split(/\s+/)[0]; 
 
-                if (!url || (!url.startsWith('http') && !url.includes('.'))) {
+                if (!url) {
                     alert('Please paste a CLEAN video URL only.');
                     return;
                 }
@@ -420,7 +417,7 @@
                 const videoTitle = document.getElementById('videoTitle');
                 const videoSize = document.getElementById('videoSize');
 
-                const API_URL = window.location.origin + '/api/download'; 
+                const API_URL = '/api/download'; 
 
                 downloadBtn.disabled = true;
                 btnText.textContent = 'Processing...';
@@ -430,57 +427,37 @@
                 progressPct.textContent = '20%';
                 statusText.textContent = 'Contacting Synx Ultra-Engine...';
 
-                // Use robust XMLHttpRequest to bypass Fetch API pattern bugs
-                const xhr = new XMLHttpRequest();
-                xhr.open("POST", API_URL, true);
-                xhr.setRequestHeader("Content-Type", "application/json");
-                
-                xhr.onload = function() {
-                    try {
-                        console.log("DEBUG: Raw Response", xhr.responseText);
-                        const data = JSON.parse(xhr.responseText);
-                        console.log("DEBUG: Response", data);
-                        
-                        if (xhr.status === 200 && data.status === 'success') {
-                            progressBar.style.width = '100%';
-                            progressPct.textContent = '100%';
-                            statusText.innerHTML = `<div style="display:flex; flex-direction:column; gap:8px;">
-                                <a href="${data.download_url}" style="color:#06b6d4; text-decoration:underline; font-weight:700;">SERVER DOWNLOAD (READY)</a>
-                                <a href="${data.direct_url}" style="color:var(--text-secondary); font-size:11px; text-decoration:none;">Engine direct link (if server fails)</a>
-                            </div>`;
-                            btnText.textContent = 'Download Ready';
-                            
-                            detailsRow.style.display = 'flex';
-                            videoTitle.textContent = data.title || 'Media Ready';
-                            videoSize.textContent = "Format: " + format.toUpperCase();
-                            
-                            const link = document.createElement('a');
-                            link.href = data.download_url;
-                            link.setAttribute('download', '');
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                        } else {
-                            throw new Error(data.message || 'Server error');
-                        }
-                    } catch (e) {
-                        handleError(e.message || "Invalid server response");
-                    }
-                };
-
-                xhr.onerror = function() {
-                    handleError("Network connection failed");
-                };
-
-                function handleError(msg) {
-                    statusText.textContent = 'Error: ' + msg;
-                    btnText.textContent = 'Try Again';
-                    downloadBtn.disabled = false;
+                fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url, format: format, quality: quality })
+                })
+                .then(response => response.json())
+                .then(data => {
                     btnSpinner.style.display = 'none';
-                    alert("Engine Error: " + msg);
-                }
-
-                xhr.send(JSON.stringify({ url: url, format: format, quality: quality }));
+                    if (data.status === 'success') {
+                        progressBar.style.width = '100%';
+                        progressPct.textContent = '100%';
+                        statusText.innerHTML = `<div style="display:flex; flex-direction:column; gap:8px;">
+                            <a href="${data.download_url}" style="color:#06b6d4; text-decoration:underline; font-weight:700;">SERVER DOWNLOAD (READY)</a>
+                            <a href="${data.direct_url}" style="color:var(--text-secondary); font-size:11px; text-decoration:none;">Engine direct link (if server fails)</a>
+                        </div>`;
+                        btnText.textContent = 'Download Ready';
+                        detailsRow.style.display = 'flex';
+                        videoTitle.textContent = data.title || 'Media Ready';
+                    } else {
+                        const errorDetails = data.details ? `<br><small style="color:#94a3b8; font-size:10px;">Error Details: ${data.details}</small>` : "";
+                        statusText.innerHTML = `<span style="color: #ff4d4d;">Error: ${data.message} ${errorDetails}</span>`;
+                        btnText.textContent = 'Try Again';
+                        downloadBtn.disabled = false;
+                    }
+                })
+                .catch(err => {
+                    btnSpinner.style.display = 'none';
+                    statusText.innerHTML = `<span style="color: #ff4d4d;">Network Error: ${err.message}</span>`;
+                    btnText.textContent = 'Retry';
+                    downloadBtn.disabled = false;
+                });
 
             } catch (globalErr) {
                 alert("Interface Error: " + globalErr.message);
