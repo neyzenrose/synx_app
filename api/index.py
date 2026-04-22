@@ -63,17 +63,18 @@ def download():
                 last_error = f"Engine {api} timeout/fail: {str(e)}"
                 continue
 
-        # STAGE 2: Master-Key (yt-dlp) with Cookies & Multi-Path
+        # STAGE 2: Master-Key Fallback (yt-dlp) with iOS Bypass
         proxy_url = "http://8pqu8nrvp4760s8:pndg6nphvup6nd9@p.webshare.io:80"
         cookies_path = "/var/www/synx/api/cookies.txt"
-        ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+        iphone_ua = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1"
         
         for use_proxy in [True, False]:
             try:
                 cmd = [
                     'yt-dlp', '-g', '-f', 'best[ext=mp4]/best', 
                     '--get-title', '--no-check-certificates', 
-                    '--no-warnings', '--user-agent', ua
+                    '--user-agent', iphone_ua,
+                    '--extractor-args', 'youtube:player_client=ios,web_embedded'
                 ]
                 if os.path.exists(cookies_path):
                     cmd.extend(['--cookies', cookies_path])
